@@ -2,8 +2,11 @@
 
 multiversx_sc::imports!();
 
+pub mod commitment;
+pub mod storage;
+
 #[multiversx_sc::contract]
-pub trait Ibc {
+pub trait Ibc: commitment::CommitmentModule + storage::StorageModule {
     #[init]
     fn init(&self) {}
 

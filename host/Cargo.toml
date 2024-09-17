@@ -9,10 +9,13 @@ publish = false
 path = "src/lib.rs"
 
 [dependencies.multiversx-sc]
-version = "=0.52.3"
+version = "=0.53.0"
+
+[dependencies.common-types]
+path = "../common/common-types"
 
 [dev-dependencies]
 num-bigint = "0.4"
 
 [dev-dependencies.multiversx-sc-scenario]
-version = "=0.52.3"
+version = "=0.53.0"
