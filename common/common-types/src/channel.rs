@@ -1,3 +1,4 @@
+#[allow(clippy::module_inception)]
 pub mod channel {
     use crate::channel::channel_counterparty;
 
