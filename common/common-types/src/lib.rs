@@ -5,10 +5,11 @@ multiversx_sc::imports!();
 // TODO: Likely don't need all the "is_empty" impls
 // TODO: See if you need any of this: https://github.com/hyperledger-labs/yui-ibc-solidity/blob/main/contracts/proto/QBFT.sol
 
-pub mod channel;
-pub mod connection;
+pub mod channel_types;
+pub mod connection_types;
 
 pub type Timestamp = u64;
+pub type Sequence = u64;
 
 pub type Path<M> = ManagedBuffer<M>;
 pub type FixedLengthBuffer<M> = ManagedByteArray<M, 32>;

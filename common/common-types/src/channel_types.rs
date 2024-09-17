@@ -1,6 +1,5 @@
-#[allow(clippy::module_inception)]
 pub mod channel {
-    use crate::channel::channel_counterparty;
+    use crate::{channel_types::channel_counterparty, Sequence};
 
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
@@ -37,14 +36,14 @@ pub mod channel {
         }
     }
 
-    #[derive(TypeAbi, TopEncode, TopDecode, Default)]
+    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Default)]
     pub struct Data<M: ManagedTypeApi> {
         pub state: State,
         pub ordering: Order,
         pub counterparty: channel_counterparty::Data<M>,
         pub connection_hops: ManagedVec<M, ManagedBuffer<M>>, // TODO: Maybe custom type
         pub version: ManagedBuffer<M>,
-        pub upgrade_sequence: u64,
+        pub upgrade_sequence: Sequence,
     }
 
     impl<M: ManagedTypeApi> Data<M> {
@@ -127,7 +126,7 @@ pub mod height {
 }
 
 pub mod timeout {
-    use crate::channel::height;
+    use crate::channel_types::height;
     use crate::Timestamp;
 
     multiversx_sc::imports!();
@@ -148,16 +147,18 @@ pub mod timeout {
 }
 
 pub mod upgrade {
+    use crate::Sequence;
+
     use super::{timeout, upgrade_fields};
 
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
-    #[derive(TypeAbi, TopEncode, TopDecode, Default)]
+    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Default)]
     pub struct Data<M: ManagedTypeApi> {
         pub fields: upgrade_fields::Data<M>,
         pub timeout: timeout::Data,
-        pub next_sequence_send: u64,
+        pub next_sequence_send: Sequence,
     }
 
     impl<M: ManagedTypeApi> Data<M> {
@@ -201,12 +202,14 @@ pub mod upgrade_fields {
 }
 
 pub mod error_receipt {
+    use crate::Sequence;
+
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
     #[derive(TypeAbi, TopEncode, TopDecode, Default)]
     pub struct Data<M: ManagedTypeApi> {
-        pub sequence: u64,
+        pub sequence: Sequence,
         pub message: ManagedBuffer<M>,
     }
 

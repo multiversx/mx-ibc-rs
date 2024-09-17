@@ -38,6 +38,7 @@ pub mod connection_end {
         }
     }
 
+    #[derive(TypeAbi, TopEncode, TopDecode, Default)]
     pub struct Data<M: ManagedTypeApi> {
         pub client_id: ClientId<M>,
         pub versions: ManagedVec<M, version::Data<M>>,
