@@ -347,7 +347,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6fe2267d4ed49bc07b63801559be28c718ea06c4738b7a03c94df7386d2cde46"
 
 [[package]]
-name = "ibc"
+name = "host"
 version = "0.0.0"
 dependencies = [
  "multiversx-sc",
@@ -356,10 +356,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "ibc-meta"
+name = "host-meta"
 version = "0.0.0"
 dependencies = [
- "ibc",
+ "host",
  "multiversx-sc-meta-lib",
 ]
 

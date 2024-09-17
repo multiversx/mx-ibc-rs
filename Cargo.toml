@@ -2,6 +2,6 @@
 resolver = "2"
 
 members = [
-    "ibc",
-    "ibc/meta"
+    "host",
+    "host/meta"
 ]
