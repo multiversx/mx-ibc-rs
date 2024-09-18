@@ -17,7 +17,6 @@ pub trait Ibc:
     + storage::StorageModule
     + common_modules::client_lib::ClientLibModule
     + common_modules::host_lib::HostLibModule
-    + common_modules::check_char::CheckCharModule
     + common_modules::utils::UtilsModule
 {
     #[init]

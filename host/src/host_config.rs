@@ -10,7 +10,6 @@ pub trait HostConfigModule:
     + crate::storage::StorageModule
     + common_modules::client_lib::ClientLibModule
     + common_modules::host_lib::HostLibModule
-    + common_modules::check_char::CheckCharModule
     + common_modules::utils::UtilsModule
 {
     fn set_expected_time_per_block(&self, exp_time_per_block: Timestamp) {
@@ -21,8 +20,10 @@ pub trait HostConfigModule:
             return;
         }
 
-        let mut default_host_value = HostInfo::default();
-        default_host_value.expected_time_per_block = exp_time_per_block;
+        let default_host_value = HostInfo {
+            expected_time_per_block: exp_time_per_block,
+            ..Default::default()
+        };
         mapper.set(default_host_value);
     }
 
