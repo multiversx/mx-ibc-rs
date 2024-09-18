@@ -1,10 +1,10 @@
 [package]
-name = "host-meta"
+name = "client-meta"
 version = "0.0.0"
 edition = "2021"
 publish = false
 
-[dependencies.host]
+[dependencies.client]
 path = ".."
 
 [dependencies.multiversx-sc-meta-lib]
