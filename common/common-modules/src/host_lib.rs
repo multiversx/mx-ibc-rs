@@ -43,7 +43,7 @@ multiversx_sc::imports!();
 
 const MIN_PORT_LEN: usize = 2;
 const MAX_PORT_LEN: usize = 128;
-const SPECIAL_CHARS: &[u8] = &[b'.', b'_', b'+', b'-', b'#', b'[', b']', b'<', b'>'];
+const SPECIAL_CHARS: &[u8] = b"._+-#[]<>";
 
 #[multiversx_sc::module]
 pub trait HostLibModule {
