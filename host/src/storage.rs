@@ -7,7 +7,7 @@ use common_types::{
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
-#[derive(TypeAbi, TopEncode, TopDecode)]
+#[derive(TypeAbi, TopEncode, TopDecode, Default)]
 pub struct HostInfo {
     pub next_client_seq: Sequence,
     pub next_connection_seq: Sequence,
@@ -58,6 +58,7 @@ pub trait StorageModule {
     #[storage_mapper("channelCap")]
     fn channel_capabilities(
         &self,
+        port_id: &PortId<Self::Api>,
         channel_id: &ChannelId<Self::Api>,
     ) -> SingleValueMapper<ManagedAddress>;
 
