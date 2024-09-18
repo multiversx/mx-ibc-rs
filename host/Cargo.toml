@@ -14,6 +14,9 @@ version = "=0.53.0"
 [dependencies.common-types]
 path = "../common/common-types"
 
+[dependencies.common-modules]
+path = "../common/common-modules"
+
 [dev-dependencies]
 num-bigint = "0.4"
 

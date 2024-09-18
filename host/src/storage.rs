@@ -15,12 +15,6 @@ pub struct HostInfo {
     pub expected_time_per_block: Timestamp,
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode)]
-pub struct ClientInfo<M: ManagedTypeApi> {
-    pub client_type: ManagedBuffer<M>, // TODO: Maybe custom type
-    pub client_impl: ManagedAddress<M>,
-}
-
 #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
 pub struct RecvStartSequence {
     pub seq: Sequence,
@@ -64,12 +58,6 @@ pub trait StorageModule {
 
     #[storage_mapper("hostInfo")]
     fn host_info(&self) -> SingleValueMapper<HostInfo>;
-
-    #[storage_mapper("clientInfo")]
-    fn client_info(
-        &self,
-        client_id: &ClientId<Self::Api>,
-    ) -> SingleValueMapper<ClientInfo<Self::Api>>;
 
     #[storage_mapper("connInfo")]
     fn connection_info(

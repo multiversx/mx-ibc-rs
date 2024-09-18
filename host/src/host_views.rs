@@ -1,7 +1,5 @@
 use common_types::ClientId;
 
-use crate::storage::ClientInfo;
-
 multiversx_sc::imports!();
 
 static DEFAULT_COMMITMENT_PREFIX: &[u8] = b"ibc";
@@ -24,8 +22,8 @@ pub trait HostViewsModule: crate::storage::StorageModule {
     }
 
     #[view(checkAndGetClient)]
-    fn check_and_get_client(&self, client_id: ClientId<Self::Api>) -> ClientInfo<Self::Api> {
-        let mapper = self.client_info(&client_id);
+    fn check_and_get_client(&self, client_id: ClientId<Self::Api>) -> ManagedAddress {
+        let mapper = self.client_registry(&client_id);
         require!(!mapper.is_empty(), "Client not found");
 
         mapper.get()
