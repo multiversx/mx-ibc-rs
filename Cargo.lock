@@ -687,6 +687,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "qbft"
+version = "0.0.0"
+dependencies = [
+ "common-modules",
+ "common-types",
+ "host",
+ "multiversx-sc",
+ "multiversx-sc-scenario",
+ "num-bigint",
+]
+
+[[package]]
+name = "qbft-meta"
+version = "0.0.0"
+dependencies = [
+ "multiversx-sc-meta-lib",
+ "qbft",
+]
+
+[[package]]
 name = "quote"
 version = "1.0.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"

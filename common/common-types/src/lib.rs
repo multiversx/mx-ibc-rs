@@ -4,7 +4,6 @@ multiversx_sc::imports!();
 
 pub mod channel_types;
 pub mod connection_types;
-pub mod qbft_types;
 
 pub const HASH_LENGTH: usize = 32;
 pub type Hash<M> = ManagedByteArray<M, HASH_LENGTH>;

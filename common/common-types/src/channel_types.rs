@@ -50,7 +50,7 @@ pub mod height {
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
-    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
+    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, ManagedVecItem)]
     pub struct Data {
         pub revision_number: u64,
         pub revision_height: u64,

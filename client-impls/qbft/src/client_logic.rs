@@ -1,10 +1,8 @@
-use common_types::{
-    channel_types::height,
-    qbft_types::{client_state, consensus_state, header},
-    ClientId, Hash, Timestamp,
-};
+use crate::qbft_types::{client_state, consensus_state, header};
+use common_types::{channel_types::height, ClientId, FixedLengthBuffer, Hash, Timestamp};
 
 multiversx_sc::imports!();
+multiversx_sc::derive_imports!();
 
 // Likely don't need all this
 
@@ -20,8 +18,22 @@ pub struct ParsedBesuHeader<M: ManagedTypeApi> {
     pub validators: ManagedVec<M, ManagedAddress<M>>, // TODO: Was RLPReader.RLPItem[]. Why?
 }
 
+pub struct ConsensusStateUpdate<M: ManagedTypeApi> {
+    pub consensus_state_commitment: FixedLengthBuffer<M>,
+    pub height: height::Data,
+}
+
+#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode)]
+pub enum ClientStatus {
+    Active,
+    Expired,
+    Frozen,
+}
+
 #[multiversx_sc::module]
-pub trait QbftModule: host::host_views::HostViewsModule + host::storage::StorageModule {
+pub trait ClientLogicModule:
+    host::host_views::HostViewsModule + host::storage::StorageModule
+{
     #[endpoint(initializeClient)]
     fn initialize_client(
         &self,
@@ -43,28 +55,19 @@ pub trait QbftModule: host::host_views::HostViewsModule + host::storage::Storage
         client_state.latest_height
     }
 
-    /// Timestamp is nanoseconds since unix epoch
-    #[view(getTimestampAtHeight)]
-    fn get_timestamp_at_height(
+    /// updates the client with the given header
+    #[endpoint(updateClient)]
+    fn update_client(
         &self,
         client_id: ClientId<Self::Api>,
-        height: height::Data,
-    ) -> Timestamp {
-        let mapper = self.consensus_states(&client_id, &height.to_biguint_concat());
-        require!(!mapper.is_empty(), "Consensus state not found");
+        header: header::Data<Self::Api>,
+    ) -> ManagedVec<height::Data> {
+        let client_state_mapper = self.client_states(&client_id);
+        require!(client_state_mapper.is_empty(), "Unknown client");
 
-        let consensus_state = mapper.get();
-        self.checked_timestamp_to_unix_mul(consensus_state.timestamp)
-    }
+        // TODO
 
-    /// returns the latest height of the client state corresponding to `clientId`
-    #[view(getLatestHeight)]
-    fn get_latest_height(&self, client_id: ClientId<Self::Api>) -> height::Data {
-        let mapper = self.client_states(&client_id);
-        require!(!mapper.is_empty(), "Client state not found");
-
-        let client_state = mapper.get();
-        client_state.latest_height
+        ManagedVec::new()
     }
 
     fn require_ibc_handler_caller(&self) {

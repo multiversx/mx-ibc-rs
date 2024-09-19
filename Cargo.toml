@@ -3,5 +3,7 @@ resolver = "2"
 
 members = [
     "client",
-    "client/meta"
+    "client/meta",
+    "client-impls/qbft",
+    "client-impls/qbft/meta"
 ]

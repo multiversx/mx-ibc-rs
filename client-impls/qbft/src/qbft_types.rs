@@ -1,5 +1,5 @@
 pub mod client_state {
-    use crate::{channel_types::height, ChainId};
+    use common_types::{channel_types::height, ChainId};
 
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
@@ -15,7 +15,7 @@ pub mod client_state {
 }
 
 pub mod consensus_state {
-    use crate::{Hash, Timestamp};
+    use common_types::{Hash, Timestamp};
 
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
@@ -29,7 +29,7 @@ pub mod consensus_state {
 }
 
 pub mod header {
-    use crate::{channel_types::height, Hash};
+    use common_types::{channel_types::height, Hash};
 
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
