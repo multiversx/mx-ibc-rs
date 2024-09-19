@@ -4,9 +4,8 @@ pub mod channel {
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
-    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Default)]
+    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
     pub enum State {
-        #[default]
         StateUninitializedUnspecified,
         StateInit,
         StateTryOpen,
@@ -16,27 +15,14 @@ pub mod channel {
         StateFlushComplete,
     }
 
-    impl State {
-        pub fn is_uninitialized(&self) -> bool {
-            matches!(self, State::StateUninitializedUnspecified)
-        }
-    }
-
-    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Default)]
+    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
     pub enum Order {
-        #[default]
         OrderNoneUnspecified,
         OrderUnordered,
         OrderOrdered,
     }
 
-    impl Order {
-        pub fn is_unspecified(&self) -> bool {
-            matches!(self, Order::OrderNoneUnspecified)
-        }
-    }
-
-    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Default)]
+    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
     pub struct Data<M: ManagedTypeApi> {
         pub state: State,
         pub ordering: Order,
@@ -44,32 +30,6 @@ pub mod channel {
         pub connection_hops: ManagedVec<M, ManagedBuffer<M>>, // TODO: Maybe custom type
         pub version: ManagedBuffer<M>,
         pub upgrade_sequence: Sequence,
-    }
-
-    impl<M: ManagedTypeApi> Data<M> {
-        pub fn is_empty(&self) -> bool {
-            if !self.state.is_uninitialized() {
-                return false;
-            }
-
-            if !self.ordering.is_unspecified() {
-                return false;
-            }
-
-            if !self.connection_hops.is_empty() {
-                return false;
-            }
-
-            if !self.version.is_empty() {
-                return false;
-            }
-
-            if self.upgrade_sequence != 0 {
-                return false;
-            }
-
-            true
-        }
     }
 }
 
@@ -79,24 +39,10 @@ pub mod channel_counterparty {
 
     use crate::{ChannelId, PortId};
 
-    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Default)]
+    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
     pub struct Data<M: ManagedTypeApi> {
         pub port_id: PortId<M>,
         pub channel_id: ChannelId<M>,
-    }
-
-    impl<M: ManagedTypeApi> Data<M> {
-        pub fn is_empty(&self) -> bool {
-            if !self.port_id.is_empty() {
-                return false;
-            }
-
-            if !self.channel_id.is_empty() {
-                return false;
-            }
-
-            true
-        }
     }
 }
 
@@ -104,23 +50,19 @@ pub mod height {
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
-    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Default)]
+    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
     pub struct Data {
         pub revision_number: u64,
         pub revision_height: u64,
     }
 
     impl Data {
-        pub fn is_empty(&self) -> bool {
-            if self.revision_number != 0 {
-                return false;
-            }
+        pub fn to_biguint_concat<M: ManagedTypeApi>(&self) -> BigUint<M> {
+            let mut buffer = ManagedBuffer::new();
+            let _ = self.revision_number.dep_encode(&mut buffer);
+            let _ = self.revision_height.dep_encode(&mut buffer);
 
-            if self.revision_height != 0 {
-                return false;
-            }
-
-            true
+            BigUint::from_bytes_be_buffer(&buffer)
         }
     }
 }
@@ -132,17 +74,10 @@ pub mod timeout {
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
-    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Default)]
+    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
     pub struct Data {
         pub height: height::Data,
         pub timestamp: Timestamp,
-    }
-
-    impl Data {
-        #[inline]
-        pub fn is_empty(&self) -> bool {
-            self.timestamp == 0
-        }
     }
 }
 
@@ -154,18 +89,11 @@ pub mod upgrade {
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
-    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Default)]
+    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
     pub struct Data<M: ManagedTypeApi> {
         pub fields: upgrade_fields::Data<M>,
         pub timeout: timeout::Data,
         pub next_sequence_send: Sequence,
-    }
-
-    impl<M: ManagedTypeApi> Data<M> {
-        #[inline]
-        pub fn is_empty(&self) -> bool {
-            self.next_sequence_send == 0
-        }
     }
 }
 
@@ -175,29 +103,11 @@ pub mod upgrade_fields {
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
-    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Default)]
+    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
     pub struct Data<M: ManagedTypeApi> {
         pub ordering: channel::Order,
         pub connection_hops: ManagedVec<M, ManagedBuffer<M>>, // TODO: Maybe custom type
         pub version: ManagedBuffer<M>,
-    }
-
-    impl<M: ManagedTypeApi> Data<M> {
-        pub fn is_empty(&self) -> bool {
-            if !self.ordering.is_unspecified() {
-                return false;
-            }
-
-            if !self.connection_hops.is_empty() {
-                return false;
-            }
-
-            if !self.version.is_empty() {
-                return false;
-            }
-
-            true
-        }
     }
 }
 
@@ -207,23 +117,9 @@ pub mod error_receipt {
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
-    #[derive(TypeAbi, TopEncode, TopDecode, Default)]
+    #[derive(TypeAbi, TopEncode, TopDecode)]
     pub struct Data<M: ManagedTypeApi> {
         pub sequence: Sequence,
         pub message: ManagedBuffer<M>,
-    }
-
-    impl<M: ManagedTypeApi> Data<M> {
-        pub fn is_empty(&self) -> bool {
-            if self.sequence != 0 {
-                return false;
-            }
-
-            if !self.message.is_empty() {
-                return false;
-            }
-
-            true
-        }
     }
 }
