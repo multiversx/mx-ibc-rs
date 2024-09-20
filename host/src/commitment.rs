@@ -1,4 +1,4 @@
-use common_types::{ChannelId, ClientId, ConnectionId, Path, PortId};
+use common_types::{ChannelId, ClientId, ConnectionId, Hash, Path, PortId};
 
 multiversx_sc::imports!();
 
@@ -8,7 +8,7 @@ multiversx_sc::imports!();
 #[multiversx_sc::module]
 pub trait CommitmentModule {
     /// "clients/{identifier}/clientState"
-    fn get_client_path(&self, client_id: &ClientId<Self::Api>) -> Path<Self::Api> {
+    fn get_client_state_path(&self, client_id: &ClientId<Self::Api>) -> Path<Self::Api> {
         sc_format!("clients/{}/clientState", client_id)
     }
 
@@ -87,7 +87,7 @@ pub trait CommitmentModule {
     }
 
     /// "nextSequenceSend/ports/{identifier}/channels/{identifier}"
-    fn get_next_sequence_send_commitment_path(
+    fn get_next_seq_send_commitment_path(
         &self,
         port_id: &PortId<Self::Api>,
         channel_id: &ChannelId<Self::Api>,
@@ -96,7 +96,7 @@ pub trait CommitmentModule {
     }
 
     /// "nextSequenceRecv/ports/{identifier}/channels/{identifier}"
-    fn get_next_sequence_recv_commitment_path(
+    fn get_next_seq_recv_commitment_path(
         &self,
         port_id: &PortId<Self::Api>,
         channel_id: &ChannelId<Self::Api>,
@@ -105,7 +105,7 @@ pub trait CommitmentModule {
     }
 
     /// "nextSequenceAck/ports/{identifier}/channels/{identifier}"
-    fn get_next_sequence_ack_commitment_path(
+    fn get_next_seq_ack_commitment_path(
         &self,
         port_id: &PortId<Self::Api>,
         channel_id: &ChannelId<Self::Api>,
@@ -137,5 +137,100 @@ pub trait CommitmentModule {
             port_id,
             channel_id
         )
+    }
+
+    // key gen
+
+    fn get_client_state_commitment_key(&self, client_id: &ClientId<Self::Api>) -> Hash<Self::Api> {
+        self.crypto()
+            .keccak256(self.get_client_state_path(client_id))
+    }
+
+    fn get_consensus_state_commitment_key(
+        &self,
+        client_id: &ClientId<Self::Api>,
+        revision_number: u64,
+        revision_height: u64,
+    ) -> Hash<Self::Api> {
+        self.crypto().keccak256(self.get_consensus_state_path(
+            client_id,
+            revision_number,
+            revision_height,
+        ))
+    }
+
+    fn get_connection_commitment_key(
+        &self,
+        connection_id: &ConnectionId<Self::Api>,
+    ) -> Hash<Self::Api> {
+        self.crypto()
+            .keccak256(self.get_connection_path(connection_id))
+    }
+
+    fn get_channel_commitment_key(
+        &self,
+        port_id: &PortId<Self::Api>,
+        channel_id: &ChannelId<Self::Api>,
+    ) -> Hash<Self::Api> {
+        self.crypto()
+            .keccak256(self.get_channel_path(port_id, channel_id))
+    }
+
+    fn get_next_seq_recv_commitment_key(
+        &self,
+        port_id: &PortId<Self::Api>,
+        channel_id: &ChannelId<Self::Api>,
+    ) -> Hash<Self::Api> {
+        self.crypto()
+            .keccak256(self.get_next_seq_recv_commitment_path(port_id, channel_id))
+    }
+
+    fn get_packet_commitment_key(
+        &self,
+        port_id: &PortId<Self::Api>,
+        channel_id: &ChannelId<Self::Api>,
+        sequence: u64,
+    ) -> Hash<Self::Api> {
+        self.crypto()
+            .keccak256(self.get_packet_commitment_path(port_id, channel_id, sequence))
+    }
+
+    fn get_packet_acknowledgement_commitment_key(
+        &self,
+        port_id: &PortId<Self::Api>,
+        channel_id: &ChannelId<Self::Api>,
+        sequence: u64,
+    ) -> Hash<Self::Api> {
+        self.crypto().keccak256(
+            self.get_packet_acknowledgement_commitment_path(port_id, channel_id, sequence),
+        )
+    }
+
+    fn get_packet_receipt_commitment_key(
+        &self,
+        port_id: &PortId<Self::Api>,
+        channel_id: &ChannelId<Self::Api>,
+        sequence: u64,
+    ) -> Hash<Self::Api> {
+        self.crypto()
+            .keccak256(self.get_packet_receipt_commitment_path(port_id, channel_id, sequence))
+    }
+
+    fn get_channel_upgrade_commitment_key(
+        &self,
+        port_id: &PortId<Self::Api>,
+        channel_id: &ChannelId<Self::Api>,
+    ) -> Hash<Self::Api> {
+        self.crypto()
+            .keccak256(self.get_channel_upgrade_path(port_id, channel_id))
+    }
+
+    fn get_channel_upgrade_error_commitment_key(
+        &self,
+        port_id: &PortId<Self::Api>,
+        channel_id: &ChannelId<Self::Api>,
+    ) -> Hash<Self::Api> {
+        self.crypto()
+            .keccak256(self.get_channel_upgrade_error_path(port_id, channel_id))
     }
 }

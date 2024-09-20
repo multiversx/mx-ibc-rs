@@ -1,11 +1,17 @@
 use common_types::{
     channel_types::{channel, upgrade},
     connection_types::connection_end,
-    ChannelId, ClientId, ConnectionId, FixedLengthBuffer, PortId, Sequence, Timestamp,
+    ChannelId, ClientId, ClientType, ConnectionId, Hash, PortId, Sequence, Timestamp,
 };
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
+
+#[derive(TypeAbi, TopEncode, TopDecode)]
+pub struct ClientInfo<M: ManagedTypeApi> {
+    pub client_type: ClientType<M>,
+    pub client_impl: ManagedAddress<M>,
+}
 
 #[derive(TypeAbi, TopEncode, TopDecode, Default)]
 pub struct HostInfo {
@@ -35,16 +41,20 @@ pub struct ChannelInfo<M: ManagedTypeApi> {
 
 #[multiversx_sc::module]
 pub trait StorageModule {
-    // TODO: Figure out what "something" means
     #[storage_mapper("commitments")]
-    fn commitments(
-        &self,
-        something: &FixedLengthBuffer<Self::Api>,
-    ) -> SingleValueMapper<FixedLengthBuffer<Self::Api>>;
+    fn commitments(&self, commitment_hash: &Hash<Self::Api>) -> SingleValueMapper<Hash<Self::Api>>;
 
     #[storage_mapper("clientReg")]
-    fn client_registry(&self, client_id: &ClientId<Self::Api>)
-        -> SingleValueMapper<ManagedAddress>;
+    fn client_registry(
+        &self,
+        client_type: &ClientType<Self::Api>,
+    ) -> SingleValueMapper<ManagedAddress>;
+
+    #[storage_mapper("clientInfo")]
+    fn client_info(
+        &self,
+        client_id: &ClientId<Self::Api>,
+    ) -> SingleValueMapper<ClientInfo<Self::Api>>;
 
     #[storage_mapper("portCap")]
     fn port_capabilities(&self, port_id: &PortId<Self::Api>) -> SingleValueMapper<ManagedAddress>;

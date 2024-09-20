@@ -21,11 +21,12 @@ pub trait HostViewsModule: crate::storage::StorageModule {
     }
 
     #[view(checkAndGetClient)]
-    fn check_and_get_client(&self, client_id: ClientId<Self::Api>) -> ManagedAddress {
-        let mapper = self.client_registry(&client_id);
+    fn check_and_get_client(&self, client_id: &ClientId<Self::Api>) -> ManagedAddress {
+        let mapper = self.client_info(client_id);
         require!(!mapper.is_empty(), "Client not found");
 
-        mapper.get()
+        let client_info = mapper.get();
+        client_info.client_impl
     }
 
     fn checked_timestamp_to_unix_mul(&self, timestamp: Timestamp) -> Timestamp {

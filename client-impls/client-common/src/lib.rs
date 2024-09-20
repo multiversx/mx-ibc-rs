@@ -1,12 +1,12 @@
 #![no_std]
 
-use common_types::{channel_types::height, FixedLengthBuffer, Timestamp};
+use common_types::{channel_types::height, Hash, Timestamp};
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
 
 pub struct ConsensusStateUpdate<M: ManagedTypeApi> {
-    pub consensus_state_commitment: FixedLengthBuffer<M>,
+    pub consensus_state_commitment: Hash<M>,
     pub height: height::Data,
 }
 
