@@ -43,6 +43,7 @@ pub trait ClientLogicModule: client_common::CommonClientLogicModule {
         self.statuses(&client_id).set(status);
     }
 
+    /// updates the client state and returns the updated heights
     #[endpoint(updateClient)]
     fn update_client(
         &self,

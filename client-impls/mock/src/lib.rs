@@ -10,7 +10,7 @@ pub mod views;
 pub trait Mock: client_common::CommonClientLogicModule + client_logic::ClientLogicModule {
     #[init]
     fn init(&self, ibc_handler: ManagedAddress) {
-        self.ibc_handler().set(ibc_handler);
+        self.set_ibc_handler(&ibc_handler);
     }
 
     #[upgrade]

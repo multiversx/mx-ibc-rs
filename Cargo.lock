@@ -410,6 +410,16 @@ dependencies = [
  "common-modules",
  "common-types",
  "multiversx-sc",
+ "multiversx-sc-scenario",
+ "num-bigint",
+]
+
+[[package]]
+name = "host-meta"
+version = "0.0.0"
+dependencies = [
+ "host",
+ "multiversx-sc-meta-lib",
 ]
 
 [[package]]

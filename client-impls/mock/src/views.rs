@@ -1,5 +1,8 @@
 use client_common::{ClientStatus, GetLatestInfoResultType};
-use common_types::{channel_types::height, ClientId, Timestamp};
+use common_types::{channel_types::height, ClientId, Hash, Timestamp};
+use host::host_views::ProxyTrait as _;
+
+use crate::mock_types::{client_state, consensus_state};
 
 multiversx_sc::imports!();
 
@@ -16,20 +19,16 @@ pub trait ViewsModule:
         client_id: &ClientId<Self::Api>,
         height: &height::Data,
     ) -> Timestamp {
-        let mapper = self.consensus_states(client_id, &height.to_biguint_concat());
-        require!(!mapper.is_empty(), "Consensus state not found");
+        let consensus_state = self.get_consensus_state(client_id, height);
 
-        let consensus_state = mapper.get();
         consensus_state.timestamp
     }
 
     /// returns the latest height of the client state corresponding to `clientId`
     #[view(getLatestHeight)]
     fn get_latest_height(&self, client_id: &ClientId<Self::Api>) -> height::Data {
-        let mapper = self.client_states(client_id);
-        require!(!mapper.is_empty(), "Client state not found");
+        let client_state = self.get_client_state(client_id);
 
-        let client_state = mapper.get();
         client_state.latest_height
     }
 
@@ -54,4 +53,103 @@ pub trait ViewsModule:
             client_status,
         }
     }
+
+    /// A generic proof verification method which verifies a proof of the existence of a value at a given CommitmentPath at the specified height
+    ///
+    /// The caller is expected to construct the full CommitmentPath from a CommitmentPrefix and a standardized path (as defined in ICS 24)
+    #[view(verifyMembership)]
+    fn verify_membership(
+        &self,
+        client_id: ClientId<Self::Api>,
+        height: height::Data,
+        _delay_time_period: Timestamp,
+        _delay_block_period: u64,
+        proof: Hash<Self::Api>,
+        prefix: ManagedBuffer,
+        path: ManagedBuffer,
+        value: ManagedBuffer,
+    ) -> bool {
+        let _ = self.get_timestamp_at_height(&client_id, &height);
+        self.require_ibc_prefix(&prefix);
+
+        let local_proof = self.encode_and_hash(&height, &prefix, &path, &value);
+        local_proof == proof
+    }
+
+    /// A generic proof verification method which verifies the absence of a given CommitmentPath at a specified height
+    ///
+    /// The caller is expected to construct the full CommitmentPath from a CommitmentPrefix and a standardized path (as defined in ICS 24)
+    #[view(verifyNonMembership)]
+    fn verify_non_membership(
+        &self,
+        client_id: ClientId<Self::Api>,
+        height: height::Data,
+        _delay_time_period: Timestamp,
+        _delay_block_period: u64,
+        proof: Hash<Self::Api>,
+        prefix: ManagedBuffer,
+        path: ManagedBuffer,
+    ) -> bool {
+        let _ = self.get_timestamp_at_height(&client_id, &height);
+        self.require_ibc_prefix(&prefix);
+
+        let local_proof = self.encode_and_hash(&height, &prefix, &path, &ManagedBuffer::new());
+        local_proof == proof
+    }
+
+    /// returns the clientState corresponding to `clientId`
+    #[view(getClientState)]
+    fn get_client_state(&self, client_id: &ClientId<Self::Api>) -> client_state::Data {
+        let mapper = self.client_states(client_id);
+        require!(!mapper.is_empty(), "Client state not found");
+
+        mapper.get()
+    }
+
+    #[view(getConsensusState)]
+    fn get_consensus_state(
+        &self,
+        client_id: &ClientId<Self::Api>,
+        height: &height::Data,
+    ) -> consensus_state::Data {
+        let mapper = self.consensus_states(client_id, &height.to_biguint_concat());
+        require!(!mapper.is_empty(), "Consensus state not found");
+
+        mapper.get()
+    }
+
+    fn require_ibc_prefix(&self, prefix: &ManagedBuffer) {
+        let ibc_handler = self.ibc_handler().get();
+        let ibc_prefix: ManagedBuffer = self
+            .host_proxy(ibc_handler)
+            .get_commitment_prefix()
+            .execute_on_dest_context();
+        require!(prefix == &ibc_prefix, "Invalid prefix");
+    }
+
+    fn encode_and_hash(
+        &self,
+        height: &height::Data,
+        prefix: &ManagedBuffer,
+        path: &ManagedBuffer,
+        value: &ManagedBuffer,
+    ) -> Hash<Self::Api> {
+        let prefix_hash = self.crypto().sha256(prefix);
+        let path_hash = self.crypto().sha256(path);
+        let value_hash = self.crypto().sha256(value);
+
+        // abi.encodePacked(height.toUint128(), sha256(prefix), sha256(path), sha256(value))
+        let mut buffer = ManagedBuffer::new();
+        let _ = height
+            .to_biguint_concat::<Self::Api>()
+            .top_encode(&mut buffer);
+        let _ = prefix_hash.dep_encode(&mut buffer);
+        let _ = path_hash.dep_encode(&mut buffer);
+        let _ = value_hash.dep_encode(&mut buffer);
+
+        self.crypto().sha256(buffer)
+    }
+
+    #[proxy]
+    fn host_proxy(&self, sc_address: ManagedAddress) -> host::Proxy<Self::Api>;
 }

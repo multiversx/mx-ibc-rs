@@ -7,5 +7,7 @@ members = [
     "client-impls/mock",
     "client-impls/mock/meta",
     "client-impls/qbft",
-    "client-impls/qbft/meta"
+    "client-impls/qbft/meta",
+    "host",
+    "host/meta"
 ]
