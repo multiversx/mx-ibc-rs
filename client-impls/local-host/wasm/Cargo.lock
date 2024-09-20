@@ -21,6 +21,29 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b048fb63fd8b5923fc5aa7b340d8e156aec7ec02f0c78fa8a6ddc2613f6f71de"
 
 [[package]]
+name = "client-common"
+version = "0.0.0"
+dependencies = [
+ "common-types",
+ "multiversx-sc",
+]
+
+[[package]]
+name = "common-modules"
+version = "0.0.0"
+dependencies = [
+ "common-types",
+ "multiversx-sc",
+]
+
+[[package]]
+name = "common-types"
+version = "0.0.0"
+dependencies = [
+ "multiversx-sc",
+]
+
+[[package]]
 name = "endian-type"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -39,9 +62,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6fe2267d4ed49bc07b63801559be28c718ea06c4738b7a03c94df7386d2cde46"
 
 [[package]]
+name = "host"
+version = "0.0.0"
+dependencies = [
+ "common-modules",
+ "common-types",
+ "multiversx-sc",
+]
+
+[[package]]
 name = "local-host"
 version = "0.0.0"
 dependencies = [
+ "client-common",
+ "common-modules",
+ "common-types",
+ "host",
  "multiversx-sc",
 ]
 

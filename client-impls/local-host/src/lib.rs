@@ -2,10 +2,18 @@
 
 multiversx_sc::imports!();
 
+pub mod client_logic;
+pub mod local_host_types;
+pub mod views;
+
 #[multiversx_sc::contract]
-pub trait LocalHost {
+pub trait LocalHost:
+    client_common::CommonClientLogicModule + client_logic::ClientLogicModule + views::ViewsModule
+{
     #[init]
-    fn init(&self) {}
+    fn init(&self, ibc_handler: ManagedAddress) {
+        self.set_ibc_handler(&ibc_handler);
+    }
 
     #[upgrade]
     fn upgrade(&self) {}
