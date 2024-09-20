@@ -18,7 +18,7 @@ pub struct MsgUpdateClient<M: ManagedTypeApi> {
 }
 
 mod generic_client_proxy {
-    use common_types::channel_types::height;
+    use common_types::{channel_types::height, ClientId};
 
     multiversx_sc::imports!();
 
@@ -30,6 +30,23 @@ mod generic_client_proxy {
             encoded_client_state: ManagedBuffer,
             encoded_consensus_state: ManagedBuffer,
         ) -> height::Data;
+
+        #[endpoint(updateClient)]
+        fn update_client(
+            &self,
+            client_id: ClientId<Self::Api>,
+            encoded_client_message: ManagedBuffer,
+        ) -> ManagedVec<height::Data>;
+
+        #[view(getClientState)]
+        fn get_client_state(&self, client_id: &ClientId<Self::Api>) -> ManagedBuffer;
+
+        #[view(getConsensusState)]
+        fn get_consensus_state(
+            &self,
+            client_id: &ClientId<Self::Api>,
+            height: &height::Data,
+        ) -> ManagedBuffer;
     }
 }
 
@@ -83,6 +100,20 @@ pub trait CreateAndUpdateClientsModule:
         client_id
     }
 
+    /// updates the consensus state and the state root from a provided header
+    #[endpoint(updateClient)]
+    fn update_client(&self, args: MsgUpdateClient<Self::Api>) {
+        let client_impl = self.check_and_get_client(&args.client_id);
+        let heights: ManagedVec<height::Data> = self
+            .generic_client_proxy_impl(client_impl)
+            .update_client(args.client_id.clone(), args.encoded_client_message)
+            .execute_on_dest_context();
+
+        if !heights.is_empty() {
+            self.update_client_commitments(&args.client_id, &heights);
+        }
+    }
+
     fn generate_client_identifier(
         &self,
         client_type: &ClientType<Self::Api>,
@@ -95,6 +126,41 @@ pub trait CreateAndUpdateClientsModule:
         });
 
         sc_format!("{}-{}", client_type, next_client_seq)
+    }
+
+    fn update_client_commitments(
+        &self,
+        client_id: &ClientId<Self::Api>,
+        heights: &ManagedVec<height::Data>,
+    ) {
+        let client = self.check_and_get_client(client_id);
+        let encoded_client_state: ManagedBuffer = self
+            .generic_client_proxy_impl(client.clone())
+            .get_client_state(client_id)
+            .execute_on_dest_context();
+
+        let client_state_comm_key = self.get_client_state_commitment_key(client_id);
+        let client_state_hash = self.crypto().keccak256(encoded_client_state);
+        self.commitments(&client_state_comm_key)
+            .set(client_state_hash);
+
+        for height in heights {
+            let encoded_consensus_state: ManagedBuffer = self
+                .generic_client_proxy_impl(client.clone())
+                .get_consensus_state(client_id, height)
+                .execute_on_dest_context();
+
+            let consensus_state_comm_key = self.get_consensus_state_commitment_key(
+                client_id,
+                height.revision_number,
+                height.revision_height,
+            );
+            let comm_mapper = self.commitments(&consensus_state_comm_key);
+            if comm_mapper.is_empty() {
+                let hashed_consensus_state = self.crypto().keccak256(encoded_consensus_state);
+                comm_mapper.set(hashed_consensus_state);
+            }
+        }
     }
 
     #[proxy]
