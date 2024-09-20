@@ -10,7 +10,8 @@ pub mod views;
 
 #[multiversx_sc::contract]
 pub trait Qbft:
-    client_logic::ClientLogicModule
+    client_common::CommonClientLogicModule
+    + client_logic::ClientLogicModule
     + views::ViewsModule
     + host::host_views::HostViewsModule
     + host::storage::StorageModule

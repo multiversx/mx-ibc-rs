@@ -20,9 +20,9 @@ multiversx_sc_wasm_adapter::endpoints! {
     (
         init => init
         upgrade => upgrade
+        getIbcHandler => ibc_handler
         initializeClient => initialize_client
         updateClient => update_client
-        getIbcHandler => ibc_handler
         getTimestampAtHeight => get_timestamp_at_height
         getLatestHeight => get_latest_height
         getStatus => get_status

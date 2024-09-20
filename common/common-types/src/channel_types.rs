@@ -50,19 +50,65 @@ pub mod height {
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
-    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, ManagedVecItem)]
+    #[derive(
+        TypeAbi,
+        TopEncode,
+        TopDecode,
+        NestedEncode,
+        NestedDecode,
+        ManagedVecItem,
+        PartialEq,
+        PartialOrd,
+        Clone,
+        Copy,
+    )]
     pub struct Data {
         pub revision_number: u64,
         pub revision_height: u64,
     }
 
     impl Data {
+        #[inline]
+        pub fn new(revision_number: u64, revision_height: u64) -> Self {
+            Self {
+                revision_number,
+                revision_height,
+            }
+        }
+
         pub fn to_biguint_concat<M: ManagedTypeApi>(&self) -> BigUint<M> {
             let mut buffer = ManagedBuffer::new();
             let _ = self.revision_number.dep_encode(&mut buffer);
             let _ = self.revision_height.dep_encode(&mut buffer);
 
             BigUint::from_bytes_be_buffer(&buffer)
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use core::cmp::Ordering;
+
+        use super::*;
+
+        #[test]
+        fn partial_ord_test() {
+            assert_eq!(
+                Data::new(0, 100).partial_cmp(&Data::new(1, 50)),
+                Some(Ordering::Less)
+            );
+            assert_eq!(
+                Data::new(0, 100).partial_cmp(&Data::new(0, 100)),
+                Some(Ordering::Equal)
+            );
+            assert_eq!(
+                Data::new(0, 100).partial_cmp(&Data::new(0, 50)),
+                Some(Ordering::Greater)
+            );
+            assert_eq!(
+                Data::new(0, 50).partial_cmp(&Data::new(1, 50)),
+                Some(Ordering::Less)
+            );
         }
     }
 }

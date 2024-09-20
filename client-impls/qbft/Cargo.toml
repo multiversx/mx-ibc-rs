@@ -11,6 +11,9 @@ path = "src/lib.rs"
 [dependencies.multiversx-sc]
 version = "=0.53.0"
 
+[dependencies.client-common]
+path = "../client-common"
+
 [dependencies.host]
 path = "../../host"
 

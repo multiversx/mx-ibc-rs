@@ -1,5 +1,5 @@
 use crate::qbft_types::{client_state, consensus_state, header};
-use common_types::{channel_types::height, ClientId, FixedLengthBuffer, Hash, Timestamp};
+use common_types::{channel_types::height, ClientId, Hash, Timestamp};
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
@@ -18,21 +18,11 @@ pub struct ParsedBesuHeader<M: ManagedTypeApi> {
     pub validators: ManagedVec<M, ManagedAddress<M>>, // TODO: Was RLPReader.RLPItem[]. Why?
 }
 
-pub struct ConsensusStateUpdate<M: ManagedTypeApi> {
-    pub consensus_state_commitment: FixedLengthBuffer<M>,
-    pub height: height::Data,
-}
-
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode)]
-pub enum ClientStatus {
-    Active,
-    Expired,
-    Frozen,
-}
-
 #[multiversx_sc::module]
 pub trait ClientLogicModule:
-    host::host_views::HostViewsModule + host::storage::StorageModule
+    client_common::CommonClientLogicModule
+    + host::host_views::HostViewsModule
+    + host::storage::StorageModule
 {
     #[endpoint(initializeClient)]
     fn initialize_client(
@@ -104,19 +94,6 @@ pub trait ClientLogicModule:
     //         validators: todo!(),
     //     };
     // }
-
-    fn require_ibc_handler_caller(&self) {
-        let caller = self.blockchain().get_caller();
-        let ibc_handler = self.ibc_handler().get();
-        require!(
-            caller == ibc_handler,
-            "Only the IBC handler may call this endpoint"
-        );
-    }
-
-    #[view(getIbcHandler)]
-    #[storage_mapper("ibcHandler")]
-    fn ibc_handler(&self) -> SingleValueMapper<ManagedAddress>;
 
     // TODO: Replace the generic "ManagedBuffer" and "BigUint" with something specific once I figure out what it means
     // Was this:
