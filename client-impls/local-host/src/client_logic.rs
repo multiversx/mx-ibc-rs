@@ -7,6 +7,22 @@ multiversx_sc::imports!();
 // static CLIENT_TYPE: &[u8] = b"09-localhost";
 static CLIENT_ID: &[u8] = b"09-localhost-0";
 
+mod client_proxy {
+    use common_types::ClientId;
+
+    multiversx_sc::imports!();
+
+    #[multiversx_sc::proxy]
+    pub trait ClientProxy {
+        #[endpoint(updateClientCommitments)]
+        fn update_client_commitments(
+            &self,
+            client_id: ClientId<Self::Api>,
+            encoded_heights: ManagedBuffer,
+        );
+    }
+}
+
 #[multiversx_sc::module]
 pub trait ClientLogicModule: client_common::CommonClientLogicModule {
     /// initializes a new localhost client with the given client identifier, client state, and consensus state.
@@ -43,20 +59,6 @@ pub trait ClientLogicModule: client_common::CommonClientLogicModule {
         }
     }
 
-    /*
-    /**
-     * @dev updateClient updates the client state commitment with the current block number.
-     * @param clientId the client identifier must be match with `LocalhostClientLib.CLIENT_ID`
-     */
-    function updateClient(string calldata clientId) public returns (Height.Data[] memory heights) {
-        if (keccak256(abi.encodePacked(clientId)) != keccak256(abi.encodePacked(LocalhostClientLib.CLIENT_ID))) {
-            revert InvalidClientID();
-        }
-        IIBCHandler(ibcHandler).updateClientCommitments(clientId, new Height.Data[](0));
-        return heights;
-    }
-     */
-
     /// updates the client state commitment with the current block number
     ///
     /// `client_id`` the client identifier must be match with `CLIENT_ID`
@@ -65,7 +67,10 @@ pub trait ClientLogicModule: client_common::CommonClientLogicModule {
         self.require_valid_client_id(&client_id);
 
         let ibc_handler = self.ibc_handler().get();
-        // TODO: Call ibc handler function
+        let _: () = self
+            .client_proxy(ibc_handler)
+            .update_client_commitments(client_id, ManagedBuffer::new())
+            .execute_on_dest_context();
 
         ManagedVec::new()
     }
@@ -73,4 +78,7 @@ pub trait ClientLogicModule: client_common::CommonClientLogicModule {
     fn require_valid_client_id(&self, client_id: &ClientId<Self::Api>) {
         require!(client_id == CLIENT_ID, "Invalid client ID");
     }
+
+    #[proxy]
+    fn client_proxy(&self, sc_address: ManagedAddress) -> client_proxy::ClientProxy<Self::Api>;
 }

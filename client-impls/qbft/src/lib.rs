@@ -15,6 +15,7 @@ pub trait Qbft:
     + views::ViewsModule
     + host::host_views::HostViewsModule
     + host::storage::StorageModule
+    + common_modules::utils::UtilsModule
 {
     #[init]
     fn init(&self, ibc_handler: ManagedAddress) {

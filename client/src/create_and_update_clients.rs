@@ -93,7 +93,29 @@ pub trait CreateAndUpdateClientsModule:
             .execute_on_dest_context();
 
         if !heights.is_empty() {
-            self.update_client_commitments(&args.client_id, &heights);
+            self.update_client_commitments(args.client_id, heights);
+        }
+    }
+
+    #[endpoint(updateClientCommitments)]
+    fn update_client_commitments(
+        &self,
+        client_id: ClientId<Self::Api>,
+        heights: ManagedVec<height::Data>,
+    ) {
+        let client = self.check_and_get_client(&client_id);
+        let encoded_client_state: ManagedBuffer = self
+            .generic_client_proxy_impl(client.clone())
+            .get_client_state(client_id.clone())
+            .execute_on_dest_context();
+
+        let client_state_comm_key = self.get_client_state_commitment_key(&client_id);
+        let client_state_hash = self.crypto().keccak256(encoded_client_state);
+        self.commitments(&client_state_comm_key)
+            .set(client_state_hash);
+
+        for height in &heights {
+            self.update_single_commitment(client.clone(), &client_id, &height);
         }
     }
 
@@ -133,27 +155,6 @@ pub trait CreateAndUpdateClientsModule:
         self.commitments(&client_comm_key).set(&client_state_hash);
         self.commitments(&consensus_comm_key)
             .set(&consensus_state_hash);
-    }
-
-    fn update_client_commitments(
-        &self,
-        client_id: &ClientId<Self::Api>,
-        heights: &ManagedVec<height::Data>,
-    ) {
-        let client = self.check_and_get_client(client_id);
-        let encoded_client_state: ManagedBuffer = self
-            .generic_client_proxy_impl(client.clone())
-            .get_client_state(client_id)
-            .execute_on_dest_context();
-
-        let client_state_comm_key = self.get_client_state_commitment_key(client_id);
-        let client_state_hash = self.crypto().keccak256(encoded_client_state);
-        self.commitments(&client_state_comm_key)
-            .set(client_state_hash);
-
-        for height in heights {
-            self.update_single_commitment(client.clone(), client_id, &height);
-        }
     }
 
     fn update_single_commitment(

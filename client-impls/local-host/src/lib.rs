@@ -8,7 +8,10 @@ pub mod views;
 
 #[multiversx_sc::contract]
 pub trait LocalHost:
-    client_common::CommonClientLogicModule + client_logic::ClientLogicModule + views::ViewsModule
+    client_common::CommonClientLogicModule
+    + client_logic::ClientLogicModule
+    + views::ViewsModule
+    + common_modules::utils::UtilsModule
 {
     #[init]
     fn init(&self, ibc_handler: ManagedAddress) {

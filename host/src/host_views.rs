@@ -3,10 +3,11 @@ use common_types::{ClientId, Timestamp};
 multiversx_sc::imports!();
 
 static DEFAULT_COMMITMENT_PREFIX: &[u8] = b"ibc";
-const NANO_SECONDS_MULT: u64 = 1_000_000_000;
 
 #[multiversx_sc::module]
-pub trait HostViewsModule: crate::storage::StorageModule {
+pub trait HostViewsModule:
+    crate::storage::StorageModule + common_modules::utils::UtilsModule
+{
     /// Returns the current timestamp (Unix time in nanoseconds) of the host chain.
     #[view(getHostTimestamp)]
     fn get_host_timestamp(&self) -> Timestamp {
@@ -27,12 +28,5 @@ pub trait HostViewsModule: crate::storage::StorageModule {
 
         let client_info = mapper.get();
         client_info.client_impl
-    }
-
-    fn checked_timestamp_to_unix_mul(&self, timestamp: Timestamp) -> Timestamp {
-        match timestamp.checked_mul(NANO_SECONDS_MULT) {
-            Some(result) => result,
-            None => sc_panic!("Overlow!!!"),
-        }
     }
 }

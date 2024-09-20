@@ -23,6 +23,7 @@ pub trait ClientLogicModule:
     client_common::CommonClientLogicModule
     + host::host_views::HostViewsModule
     + host::storage::StorageModule
+    + common_modules::utils::UtilsModule
 {
     #[endpoint(initializeClient)]
     fn initialize_client(

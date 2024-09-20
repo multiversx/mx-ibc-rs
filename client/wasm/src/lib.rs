@@ -6,9 +6,9 @@
 
 // Init:                                 1
 // Upgrade:                              1
-// Endpoints:                            5
+// Endpoints:                            7
 // Async Callback (empty):               1
-// Total number of exported functions:   8
+// Total number of exported functions:  10
 
 #![no_std]
 
@@ -22,9 +22,11 @@ multiversx_sc_wasm_adapter::endpoints! {
         upgrade => upgrade
         createClient => create_client
         updateClient => update_client
+        updateClientCommitments => update_client_commitments
         getHostTimestamp => get_host_timestamp
         getCommitmentPrefix => get_commitment_prefix
         checkAndGetClient => check_and_get_client
+        getCommitment => get_commitment
     )
 }
 

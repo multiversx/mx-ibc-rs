@@ -10,6 +10,7 @@ pub trait ViewsModule:
     + crate::client_logic::ClientLogicModule
     + host::host_views::HostViewsModule
     + host::storage::StorageModule
+    + common_modules::utils::UtilsModule
 {
     /// Timestamp is nanoseconds since unix epoch
     #[view(getTimestampAtHeight)]

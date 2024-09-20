@@ -41,6 +41,12 @@ pub struct ChannelInfo<M: ManagedTypeApi> {
 
 #[multiversx_sc::module]
 pub trait StorageModule {
+    // Needs to be its own function for proxy
+    #[view(getCommitment)]
+    fn get_commitment(&self, commitment_hash: &Hash<Self::Api>) -> Hash<Self::Api> {
+        self.commitments(commitment_hash).get()
+    }
+
     #[storage_mapper("commitments")]
     fn commitments(&self, commitment_hash: &Hash<Self::Api>) -> SingleValueMapper<Hash<Self::Api>>;
 
