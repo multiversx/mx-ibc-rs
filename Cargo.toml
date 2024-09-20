@@ -4,6 +4,8 @@ resolver = "2"
 members = [
     "client",
     "client/meta",
+    "client-impls/local-host",
+    "client-impls/local-host/meta",
     "client-impls/mock",
     "client-impls/mock/meta",
     "client-impls/qbft",
