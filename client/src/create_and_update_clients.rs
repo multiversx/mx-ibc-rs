@@ -146,9 +146,9 @@ pub trait CreateAndUpdateClientsModule:
             .initialize_client(args.encoded_client_state, args.encoded_consensus_state)
             .execute_on_dest_context();
 
-        let client_comm_key = self.get_client_state_commitment_key(&client_id);
+        let client_comm_key = self.get_client_state_commitment_key(client_id);
         let consensus_comm_key = self.get_consensus_state_commitment_key(
-            &client_id,
+            client_id,
             height.revision_number,
             height.revision_height,
         );
