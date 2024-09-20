@@ -34,7 +34,7 @@ mod generic_client_proxy {
 }
 
 #[multiversx_sc::module]
-pub trait UpdateClientsModule:
+pub trait CreateAndUpdateClientsModule:
     crate::events::EventsModule
     + host::commitment::CommitmentModule
     + host::host_config::HostConfigModule

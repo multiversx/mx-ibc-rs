@@ -2,13 +2,13 @@
 
 multiversx_sc::imports!();
 
+pub mod create_and_update_clients;
 pub mod events;
 pub mod merkle_proof;
-pub mod update_clients;
 
 #[multiversx_sc::contract]
 pub trait Client:
-    update_clients::UpdateClientsModule
+    create_and_update_clients::CreateAndUpdateClientsModule
     + merkle_proof::MerkleProofModule
     + events::EventsModule
     + host::commitment::CommitmentModule
