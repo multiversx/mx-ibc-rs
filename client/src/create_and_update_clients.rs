@@ -73,28 +73,11 @@ pub trait CreateAndUpdateClientsModule:
         let client_impl = client_impl_mapper.get();
         let client_id = self.generate_client_identifier(&args.client_type);
         self.client_info(&client_id).set(ClientInfo {
-            client_type: args.client_type,
+            client_type: args.client_type.clone(),
             client_impl: client_impl.clone(),
         });
 
-        let client_state_hash = self.crypto().keccak256(&args.encoded_client_state);
-        let consensus_state_hash = self.crypto().keccak256(&args.encoded_consensus_state);
-        let height: height::Data = self
-            .generic_client_proxy_impl(client_impl)
-            .initialize_client(args.encoded_client_state, args.encoded_consensus_state)
-            .execute_on_dest_context();
-
-        // update commitments
-        let client_comm_key = self.get_client_state_commitment_key(&client_id);
-        let consensus_comm_key = self.get_consensus_state_commitment_key(
-            &client_id,
-            height.revision_number,
-            height.revision_height,
-        );
-        self.commitments(&client_comm_key).set(&client_state_hash);
-        self.commitments(&consensus_comm_key)
-            .set(&consensus_state_hash);
-
+        self.update_commitments_after_create(args, client_impl, &client_id);
         self.generated_client_id_event(&client_id);
 
         client_id
@@ -128,6 +111,30 @@ pub trait CreateAndUpdateClientsModule:
         sc_format!("{}-{}", client_type, next_client_seq)
     }
 
+    fn update_commitments_after_create(
+        &self,
+        args: MsgCreateClient<Self::Api>,
+        client_impl: ManagedAddress,
+        client_id: &ClientId<Self::Api>,
+    ) {
+        let client_state_hash = self.crypto().keccak256(&args.encoded_client_state);
+        let consensus_state_hash = self.crypto().keccak256(&args.encoded_consensus_state);
+        let height: height::Data = self
+            .generic_client_proxy_impl(client_impl)
+            .initialize_client(args.encoded_client_state, args.encoded_consensus_state)
+            .execute_on_dest_context();
+
+        let client_comm_key = self.get_client_state_commitment_key(&client_id);
+        let consensus_comm_key = self.get_consensus_state_commitment_key(
+            &client_id,
+            height.revision_number,
+            height.revision_height,
+        );
+        self.commitments(&client_comm_key).set(&client_state_hash);
+        self.commitments(&consensus_comm_key)
+            .set(&consensus_state_hash);
+    }
+
     fn update_client_commitments(
         &self,
         client_id: &ClientId<Self::Api>,
@@ -145,21 +152,30 @@ pub trait CreateAndUpdateClientsModule:
             .set(client_state_hash);
 
         for height in heights {
-            let encoded_consensus_state: ManagedBuffer = self
-                .generic_client_proxy_impl(client.clone())
-                .get_consensus_state(client_id, height)
-                .execute_on_dest_context();
+            self.update_single_commitment(client.clone(), client_id, &height);
+        }
+    }
 
-            let consensus_state_comm_key = self.get_consensus_state_commitment_key(
-                client_id,
-                height.revision_number,
-                height.revision_height,
-            );
-            let comm_mapper = self.commitments(&consensus_state_comm_key);
-            if comm_mapper.is_empty() {
-                let hashed_consensus_state = self.crypto().keccak256(encoded_consensus_state);
-                comm_mapper.set(hashed_consensus_state);
-            }
+    fn update_single_commitment(
+        &self,
+        client: ManagedAddress,
+        client_id: &ClientId<Self::Api>,
+        height: &height::Data,
+    ) {
+        let encoded_consensus_state: ManagedBuffer = self
+            .generic_client_proxy_impl(client)
+            .get_consensus_state(client_id, height)
+            .execute_on_dest_context();
+
+        let consensus_state_comm_key = self.get_consensus_state_commitment_key(
+            client_id,
+            height.revision_number,
+            height.revision_height,
+        );
+        let comm_mapper = self.commitments(&consensus_state_comm_key);
+        if comm_mapper.is_empty() {
+            let hashed_consensus_state = self.crypto().keccak256(encoded_consensus_state);
+            comm_mapper.set(hashed_consensus_state);
         }
     }
 
