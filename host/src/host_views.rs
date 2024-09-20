@@ -9,7 +9,7 @@ const NANO_SECONDS_MULT: u64 = 1_000_000_000;
 pub trait HostViewsModule: crate::storage::StorageModule {
     /// Returns the current timestamp (Unix time in nanoseconds) of the host chain.
     #[view(getHostTimestamp)]
-    fn get_host_timestamp(&self) -> u64 {
+    fn get_host_timestamp(&self) -> Timestamp {
         let block_timestamp = self.blockchain().get_block_timestamp();
 
         self.checked_timestamp_to_unix_mul(block_timestamp)
