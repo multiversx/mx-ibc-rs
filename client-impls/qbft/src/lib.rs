@@ -6,6 +6,8 @@ pub mod client_logic;
 pub mod qbft_types;
 pub mod views;
 
+// Ignore this whole crate, still work in progress. Not even entirely sure we need something like this yet.
+
 #[multiversx_sc::contract]
 pub trait Qbft:
     client_logic::ClientLogicModule

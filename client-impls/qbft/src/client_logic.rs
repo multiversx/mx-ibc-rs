@@ -60,7 +60,7 @@ pub trait ClientLogicModule:
     fn update_client(
         &self,
         client_id: ClientId<Self::Api>,
-        header: header::Data<Self::Api>,
+        _header: header::Data<Self::Api>,
     ) -> ManagedVec<height::Data> {
         let client_state_mapper = self.client_states(&client_id);
         require!(client_state_mapper.is_empty(), "Unknown client");
@@ -69,6 +69,41 @@ pub trait ClientLogicModule:
 
         ManagedVec::new()
     }
+
+    /*
+    function parseBesuHeader(Header.Data memory header) internal pure returns (ParsedBesuHeader memory) {
+        ParsedBesuHeader memory parsedHeader;
+
+        parsedHeader.base = header;
+        RLPReader.RLPItem[] memory items = header.besu_header_rlp.toRlpItem().toList();
+        if (items.length < 15) {
+            revert UnexpectedEthereumHeaderFormat(items.length);
+        }
+        parsedHeader.stateRoot = bytes32(items[3].toUint());
+        parsedHeader.height = Height.Data({revision_number: 0, revision_height: uint64(items[8].toUint())});
+        parsedHeader.time = uint64(items[11].toUint());
+        items = items[12].toBytes().toRlpItem().toList();
+        // IBFT2: {Vanity, Validators, Vote, Round}
+        // QBFT:  {Vanity, Validators, Vote, Round, Empty-Seals}
+        if (items.length != 4 && items.length != 5) {
+            revert UnexpectedExtraDataFormat(items.length);
+        }
+        parsedHeader.validators = items[1].toList();
+        return parsedHeader;
+    }
+     */
+
+    // fn parse_besu_header(&self, header: header::Data<Self::Api>) -> ParsedBesuHeader<Self::Api> {
+    //     let items = header.besu_header
+
+    //     let parsed_header = ParsedBesuHeader {
+    //         base: header,
+    //         height: todo!(),
+    //         state_root: todo!(),
+    //         time: todo!(),
+    //         validators: todo!(),
+    //     };
+    // }
 
     fn require_ibc_handler_caller(&self) {
         let caller = self.blockchain().get_caller();
