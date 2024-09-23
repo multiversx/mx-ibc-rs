@@ -3,7 +3,7 @@ use common_types::{
     ConnectionId, Hash,
 };
 
-use crate::conn_internal::{
+use super::conn_internal::{
     VerifyClientStateArgs, VerifyConnectionStateArgs, VerifyConsensusStateArgs,
 };
 
@@ -14,7 +14,7 @@ multiversx_sc::imports!();
 #[multiversx_sc::module]
 pub trait VerifyStatesModule:
     super::conn_lib::ConnectionLibModule
-    + crate::conn_internal::ConnectionInternalModule
+    + super::conn_internal::ConnectionInternalModule
     + host::commitment::CommitmentModule
     + host::host_config::HostConfigModule
     + host::host_views::HostViewsModule

@@ -8,7 +8,7 @@ multiversx_sc::imports!();
 pub trait ConnectionEndpointsModule:
     crate::common::conn_lib::ConnectionLibModule
     + crate::common::verify_states::VerifyStatesModule
-    + crate::conn_internal::ConnectionInternalModule
+    + crate::common::conn_internal::ConnectionInternalModule
     + crate::common::events::EventsModule
     + host::commitment::CommitmentModule
     + host::host_config::HostConfigModule
