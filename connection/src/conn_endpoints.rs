@@ -1,10 +1,14 @@
 use common_types::{connection_types::connection_end, ConnectionId, VersionVec};
 
 use crate::common::conn_types::{
-    MsgConnectionOpenAck, MsgConnectionOpenInit, MsgConnectionOpenTry,
+    MsgConnectionOpenAck, MsgConnectionOpenConfirm, MsgConnectionOpenInit, MsgConnectionOpenTry,
 };
 
 multiversx_sc::imports!();
+
+static CONNECTION_ALREADY_EXISTS_ERR_MSG: &[u8] = b"Connection already exists";
+static CONNECTION_DOES_NOT_EXIST_ERR_MSG: &[u8] = b"Connection does not exist";
+static INVALID_CONNECTION_STATE_ERR_MSG: &[u8] = b"Invalid connection state";
 
 #[multiversx_sc::module]
 pub trait ConnectionEndpointsModule:
@@ -33,7 +37,10 @@ pub trait ConnectionEndpointsModule:
     ) -> ConnectionId<Self::Api> {
         let connection_id = self.generate_connection_id();
         let connection_mapper = self.connection_info(&connection_id);
-        require!(connection_mapper.is_empty(), "Connection already exists");
+        require!(
+            connection_mapper.is_empty(),
+            CONNECTION_ALREADY_EXISTS_ERR_MSG
+        );
 
         // ensure the client exists
         let _ = self.check_and_get_client(&args.client_id);
@@ -73,7 +80,10 @@ pub trait ConnectionEndpointsModule:
         let self_consensus_state = args.host_consensus_state_proof.clone();
         let connection_id = self.generate_connection_id();
         let connection_mapper = self.connection_info(&connection_id);
-        require!(connection_mapper.is_empty(), "Connection already exists");
+        require!(
+            connection_mapper.is_empty(),
+            CONNECTION_ALREADY_EXISTS_ERR_MSG
+        );
 
         // ensure the client exists
         let _ = self.check_and_get_client(&args.client_id);
@@ -100,12 +110,15 @@ pub trait ConnectionEndpointsModule:
     #[endpoint(connectionOpenAck)]
     fn connection_open_ack(&self, args: MsgConnectionOpenAck<Self::Api>) {
         let connection_mapper = self.connection_info(&args.connection_id);
-        require!(!connection_mapper.is_empty(), "Connection does not exist");
+        require!(
+            !connection_mapper.is_empty(),
+            CONNECTION_DOES_NOT_EXIST_ERR_MSG
+        );
 
         let mut connection_info = connection_mapper.get();
         require!(
             matches!(connection_info.state, connection_end::State::Init),
-            "Invalid connection state"
+            INVALID_CONNECTION_STATE_ERR_MSG
         );
 
         let self_consensus_state = args.host_consensus_state_proof.clone();
@@ -121,5 +134,28 @@ pub trait ConnectionEndpointsModule:
 
         connection_mapper.set(&connection_info);
         self.update_connection_commitment(&args.connection_id, &connection_info);
+    }
+
+    /// confirms opening of a connection on chain A to chain B, after which the connection is open on both chains (this code is executed on chain B)
+    #[endpoint(connectionOpenConfirm)]
+    fn connection_open_confirm(&self, args: MsgConnectionOpenConfirm<Self::Api>) {
+        let connection_mapper = self.connection_info(&args.connection_id);
+        require!(
+            !connection_mapper.is_empty(),
+            CONNECTION_DOES_NOT_EXIST_ERR_MSG
+        );
+
+        let mut connection_info = connection_mapper.get();
+        require!(
+            matches!(connection_info.state, connection_end::State::TryOpen),
+            INVALID_CONNECTION_STATE_ERR_MSG
+        );
+
+        let connection_id = args.connection_id.clone();
+        self.verify_all_states_open_confirm(connection_info.clone(), args);
+
+        connection_info.state = connection_end::State::Open;
+        connection_mapper.set(&connection_info);
+        self.update_connection_commitment(&connection_id, &connection_info);
     }
 }

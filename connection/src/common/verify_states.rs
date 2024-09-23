@@ -5,7 +5,7 @@ use common_types::{
 
 use super::{
     conn_internal::{VerifyClientStateArgs, VerifyConnectionStateArgs, VerifyConsensusStateArgs},
-    conn_types::MsgConnectionOpenAck,
+    conn_types::{MsgConnectionOpenAck, MsgConnectionOpenConfirm},
 };
 
 use super::conn_types::MsgConnectionOpenTry;
@@ -110,6 +110,35 @@ pub trait VerifyStatesModule:
             consensus_height: args.consensus_height,
             proof: args.proof_consensus,
             consensus_state_bytes: self_consensus_state.as_managed_buffer().clone(),
+        });
+    }
+
+    fn verify_all_states_open_confirm(
+        &self,
+        connection_info: connection_end::Data<Self::Api>,
+        args: MsgConnectionOpenConfirm<Self::Api>,
+    ) {
+        let expected_counterparty = counterparty::Data {
+            client_id: connection_info.client_id.clone(),
+            connection_id: args.connection_id,
+            prefix: merkle_prefix::Data {
+                key_prefix: self.get_commitment_prefix(),
+            },
+        };
+        let expected_connection = connection_end::Data {
+            client_id: connection_info.counterparty.client_id.clone(),
+            counterparty: expected_counterparty,
+            state: connection_end::State::Open,
+            delay_period: connection_info.delay_period,
+            versions: connection_info.versions.clone(),
+        };
+
+        self.verify_connection_state(VerifyConnectionStateArgs {
+            counterparty_connection_id: connection_info.counterparty.connection_id.clone(),
+            counterparty_connection_info: expected_connection,
+            connection_info,
+            height: args.proof_height,
+            proof: args.proof_ack,
         });
     }
 }
