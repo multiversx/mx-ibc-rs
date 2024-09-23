@@ -6,20 +6,20 @@ pub mod channel {
 
     #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
     pub enum State {
-        StateUninitializedUnspecified,
-        StateInit,
-        StateTryOpen,
-        StateOpen,
-        StateClosed,
-        StateFlushing,
-        StateFlushComplete,
+        UninitializedUnspecified,
+        Init,
+        TryOpen,
+        Open,
+        Closed,
+        Flushing,
+        FlushComplete,
     }
 
     #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
     pub enum Order {
-        OrderNoneUnspecified,
-        OrderUnordered,
-        OrderOrdered,
+        NoneUnspecified,
+        Unordered,
+        Ordered,
     }
 
     #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]

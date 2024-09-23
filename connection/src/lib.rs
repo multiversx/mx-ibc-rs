@@ -2,16 +2,17 @@
 
 multiversx_sc::imports!();
 
+pub mod common;
 pub mod conn_endpoints;
-pub mod conn_lib;
-pub mod conn_types;
-pub mod events;
+pub mod conn_internal;
 
 #[multiversx_sc::contract]
 pub trait Connection:
-    conn_lib::ConnectionLibModule
+    common::conn_lib::ConnectionLibModule
+    + common::verify_states::VerifyStatesModule
+    + conn_internal::ConnectionInternalModule
     + conn_endpoints::ConnectionEndpointsModule
-    + events::EventsModule
+    + common::events::EventsModule
     + host::commitment::CommitmentModule
     + host::host_config::HostConfigModule
     + host::host_views::HostViewsModule

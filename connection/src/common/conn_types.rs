@@ -1,7 +1,7 @@
 use common_types::{
     channel_types::height,
     connection_types::{counterparty, version},
-    ClientId, ConnectionId, Hash, Timestamp,
+    ClientId, ConnectionId, Hash, Timestamp, VersionVec,
 };
 
 multiversx_sc::imports!();
@@ -19,10 +19,9 @@ pub struct MsgConnectionOpenInit<M: ManagedTypeApi> {
 pub struct MsgConnectionOpenTry<M: ManagedTypeApi> {
     pub counterparty: counterparty::Data<M>, // counterpartyConnectionIdentifier, counterpartyPrefix and counterpartyClientIdentifier
     pub delay_period: Timestamp,
-    pub client_id: ClientId<M>, // clientID of chainA
-    // TODO: Might be able to deserialize this directly
+    pub client_id: ClientId<M>,               // clientID of chainA
     pub client_state_bytes: ManagedBuffer<M>, // clientState that chainA has for chainB
-    pub counterparty_versions: version::Data<M>, // supported versions of chain A
+    pub counterparty_versions: VersionVec<M>, // supported versions of chain A
     pub proof_init: Hash<M>, // proof that chainA stored connectionEnd in state (on ConnOpenInit)
     pub proof_client: Hash<M>, // proof that chainA stored a light client of chainB
     pub proof_consensus: Hash<M>, // proof that chainA stored chainB's consensus state at consensus height
@@ -34,7 +33,6 @@ pub struct MsgConnectionOpenTry<M: ManagedTypeApi> {
 #[derive(TypeAbi, TopDecode)]
 pub struct MsgConnectionOpenAck<M: ManagedTypeApi> {
     pub connection_id: ConnectionId<M>,
-    // TODO: Might be able to deserialize this directly
     pub client_state_bytes: ManagedBuffer<M>, // client state for chainA on chainB
     pub version: version::Data<M>,            // version that ChainB chose in ConnOpenTry
     pub counterparty_connection_id: ConnectionId<M>,
