@@ -2,8 +2,10 @@
 
 multiversx_sc::imports!();
 
+pub mod connection_lib;
+
 #[multiversx_sc::contract]
-pub trait Connection {
+pub trait Connection: connection_lib::ConnectionLibModule {
     #[init]
     fn init(&self) {}
 

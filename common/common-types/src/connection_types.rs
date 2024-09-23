@@ -51,12 +51,14 @@ pub mod counterparty {
 }
 
 pub mod version {
+    use crate::{FeatureId, FeatureVec};
+
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
     #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, ManagedVecItem)]
     pub struct Data<M: ManagedTypeApi> {
-        pub identifier: ManagedBuffer<M>,
-        pub features: ManagedVec<M, ManagedBuffer<M>>,
+        pub identifier: FeatureId<M>,
+        pub features: FeatureVec<M>,
     }
 }

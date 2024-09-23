@@ -1,5 +1,7 @@
 #![no_std]
 
+use connection_types::version;
+
 multiversx_sc::imports!();
 
 pub mod channel_types;
@@ -16,5 +18,10 @@ pub type ClientId<M> = ManagedBuffer<M>;
 pub type ClientType<M> = ManagedBuffer<M>;
 pub type ConnectionId<M> = ManagedBuffer<M>;
 pub type ChannelId<M> = ManagedBuffer<M>;
+pub type Feature<M> = ManagedBuffer<M>;
+pub type FeatureId<M> = ManagedBuffer<M>;
 pub type PortId<M> = ManagedBuffer<M>;
 pub type Path<M> = ManagedBuffer<M>;
+
+pub type VersionVec<M> = ManagedVec<M, version::Data<M>>;
+pub type FeatureVec<M> = ManagedVec<M, Feature<M>>;
