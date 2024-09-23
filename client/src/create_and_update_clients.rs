@@ -121,12 +121,7 @@ pub trait CreateAndUpdateClientsModule:
         &self,
         client_type: &ClientType<Self::Api>,
     ) -> ClientId<Self::Api> {
-        let next_client_seq = self.host_info().update(|host_info| {
-            let returned_val = host_info.next_client_seq;
-            host_info.next_client_seq += 1;
-
-            returned_val
-        });
+        let next_client_seq = self.get_next_client_seq();
 
         sc_format!("{}-{}", client_type, next_client_seq)
     }

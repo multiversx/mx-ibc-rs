@@ -9,7 +9,7 @@ pub mod merkle_prefix {
 }
 
 pub mod connection_end {
-    use crate::ClientId;
+    use crate::{ClientId, Timestamp};
 
     use super::{counterparty, version};
 
@@ -30,7 +30,7 @@ pub mod connection_end {
         pub versions: ManagedVec<M, version::Data<M>>,
         pub state: State,
         pub counterparty: counterparty::Data<M>,
-        pub delay_period: u64, // TODO: Probably a timestamp
+        pub delay_period: Timestamp,
     }
 }
 
@@ -56,7 +56,7 @@ pub mod version {
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
-    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, ManagedVecItem)]
+    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, ManagedVecItem, Clone)]
     pub struct Data<M: ManagedTypeApi> {
         pub identifier: FeatureId<M>,
         pub features: FeatureVec<M>,
