@@ -88,13 +88,9 @@ pub trait ConnectionLibModule {
         supported_versions: &VersionVec<Self::Api>,
         version: &version::Data<Self::Api>,
     ) -> Option<version::Data<Self::Api>> {
-        for supp_version in supported_versions {
-            if supp_version.identifier == version.identifier {
-                Some(supp_version);
-            }
-        }
-
-        None
+        supported_versions
+            .into_iter()
+            .find(|supp_version| supp_version.identifier == version.identifier)
     }
 
     /// Iterates over the descending ordered set of compatible IBC versions
