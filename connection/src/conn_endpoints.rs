@@ -1,6 +1,8 @@
 use common_types::{connection_types::connection_end, ConnectionId, VersionVec};
 
-use crate::common::conn_types::{MsgConnectionOpenInit, MsgConnectionOpenTry};
+use crate::common::conn_types::{
+    MsgConnectionOpenAck, MsgConnectionOpenInit, MsgConnectionOpenTry,
+};
 
 multiversx_sc::imports!();
 
@@ -92,5 +94,32 @@ pub trait ConnectionEndpointsModule:
         self.generated_connection_id_event(&connection_id);
 
         connection_id
+    }
+
+    /// relays acceptance of a connection open attempt from chain B back to chain A (this code is executed on chain A)
+    #[endpoint(connectionOpenAck)]
+    fn connection_open_ack(&self, args: MsgConnectionOpenAck<Self::Api>) {
+        let connection_mapper = self.connection_info(&args.connection_id);
+        require!(!connection_mapper.is_empty(), "Connection does not exist");
+
+        let mut connection_info = connection_mapper.get();
+        require!(
+            matches!(connection_info.state, connection_end::State::Init),
+            "Invalid connection state"
+        );
+
+        let self_consensus_state = args.host_consensus_state_proof.clone();
+        self.verify_all_states_open_ack(
+            connection_info.clone(),
+            &self_consensus_state,
+            args.clone(),
+        );
+
+        connection_info.state = connection_end::State::Open;
+        connection_info.counterparty.connection_id = args.counterparty_connection_id;
+        connection_info.versions = ManagedVec::from_single_item(args.version);
+
+        connection_mapper.set(&connection_info);
+        self.update_connection_commitment(&args.connection_id, &connection_info);
     }
 }

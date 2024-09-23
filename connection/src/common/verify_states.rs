@@ -3,8 +3,9 @@ use common_types::{
     ConnectionId, Hash,
 };
 
-use super::conn_internal::{
-    VerifyClientStateArgs, VerifyConnectionStateArgs, VerifyConsensusStateArgs,
+use super::{
+    conn_internal::{VerifyClientStateArgs, VerifyConnectionStateArgs, VerifyConsensusStateArgs},
+    conn_types::MsgConnectionOpenAck,
 };
 
 use super::conn_types::MsgConnectionOpenTry;
@@ -50,6 +51,50 @@ pub trait VerifyStatesModule:
             height: args.proof_height,
             proof: args.proof_init,
             counterparty_connection_id: args.counterparty.connection_id,
+            counterparty_connection_info: expected_connection,
+        });
+        self.verify_client_state(VerifyClientStateArgs {
+            connection_info: connection_info.clone(),
+            height: args.proof_height,
+            path: self.get_client_state_path(&connection_info.counterparty.client_id),
+            proof: args.proof_client,
+            client_state_bytes: args.client_state_bytes,
+        });
+        self.verify_consensus_state(VerifyConsensusStateArgs {
+            connection_info,
+            height: args.proof_height,
+            consensus_height: args.consensus_height,
+            proof: args.proof_consensus,
+            consensus_state_bytes: self_consensus_state.as_managed_buffer().clone(),
+        });
+    }
+
+    fn verify_all_states_open_ack(
+        &self,
+        connection_info: connection_end::Data<Self::Api>,
+        self_consensus_state: &Hash<Self::Api>,
+        args: MsgConnectionOpenAck<Self::Api>,
+    ) {
+        let expected_counterparty = counterparty::Data {
+            client_id: connection_info.client_id.clone(),
+            connection_id: args.connection_id,
+            prefix: merkle_prefix::Data {
+                key_prefix: self.get_commitment_prefix(),
+            },
+        };
+        let expected_connection = connection_end::Data {
+            client_id: connection_info.counterparty.client_id.clone(),
+            counterparty: expected_counterparty,
+            state: connection_end::State::TryOpen,
+            delay_period: connection_info.delay_period,
+            versions: ManagedVec::from_single_item(args.version),
+        };
+
+        self.verify_connection_state(VerifyConnectionStateArgs {
+            connection_info: connection_info.clone(),
+            height: args.proof_height,
+            proof: args.proof_try,
+            counterparty_connection_id: args.counterparty_connection_id,
             counterparty_connection_info: expected_connection,
         });
         self.verify_client_state(VerifyClientStateArgs {

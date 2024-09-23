@@ -30,7 +30,7 @@ pub struct MsgConnectionOpenTry<M: ManagedTypeApi> {
     pub host_consensus_state_proof: Hash<M>, // optional proof data for host state machines that are unable to introspect their own consensus state
 }
 
-#[derive(TypeAbi, TopDecode)]
+#[derive(TypeAbi, TopDecode, Clone)]
 pub struct MsgConnectionOpenAck<M: ManagedTypeApi> {
     pub connection_id: ConnectionId<M>,
     pub client_state_bytes: ManagedBuffer<M>, // client state for chainA on chainB
