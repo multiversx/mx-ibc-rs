@@ -17,6 +17,9 @@ path = "../common/common-types"
 [dependencies.common-modules]
 path = "../common/common-modules"
 
+[dependencies.host]
+path = "../host"
+
 [dev-dependencies]
 num-bigint = "0.4"
 
