@@ -68,8 +68,6 @@ pub trait CreateAndUpdateClientsModule:
         let client_impl_mapper = self.client_registry(&args.client_type);
         require!(!client_impl_mapper.is_empty(), "Client not registered");
 
-        // TODO: Check register function
-
         let client_impl = client_impl_mapper.get();
         let client_id = self.generate_client_identifier(&args.client_type);
         self.client_info(&client_id).set(ClientInfo {
