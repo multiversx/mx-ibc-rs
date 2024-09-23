@@ -104,36 +104,6 @@ pub trait ViewsModule:
         hash == self.crypto().keccak256(value)
     }
 
-    /*
-    function verifyNonMembership(
-        string memory clientId,
-        Height.Data memory proofHeight,
-        uint64,
-        uint64,
-        bytes memory proof,
-        bytes memory prefix,
-        bytes memory path
-    ) public view returns (bool) {
-        if (keccak256(abi.encodePacked(clientId)) != keccak256(abi.encodePacked(LocalhostClientLib.CLIENT_ID))) {
-            revert InvalidClientID();
-        }
-        if (proofHeight.revision_number != 0) {
-            revert InvalidHeightRevisionNumber();
-        }
-        if (proofHeight.revision_height > block.number) {
-            revert InvalidHeightRevisionHeight();
-        }
-        if (keccak256(proof) != keccak256(LocalhostClientLib.sentinelProof())) {
-            revert InvalidProof();
-        }
-        if (keccak256(IIBCHandler(ibcHandler).getCommitmentPrefix()) != keccak256(prefix)) {
-            revert InvalidPrefix();
-        }
-        return IIBCHandler(ibcHandler).getCommitment(keccak256(path)) == bytes32(0);
-    }
-
-     */
-
     /// A generic proof verification method which verifies the absence of a given CommitmentPath at a specified height
     ///
     /// The caller is expected to construct the full CommitmentPath from a CommitmentPrefix and a standardized path (as defined in ICS 24)
