@@ -68,8 +68,6 @@ pub trait CreateAndUpdateClientsModule:
         let client_impl_mapper = self.client_registry(&args.client_type);
         require!(!client_impl_mapper.is_empty(), "Client not registered");
 
-        // TODO: Check register function
-
         let client_impl = client_impl_mapper.get();
         let client_id = self.generate_client_identifier(&args.client_type);
         self.client_info(&client_id).set(ClientInfo {
@@ -123,12 +121,7 @@ pub trait CreateAndUpdateClientsModule:
         &self,
         client_type: &ClientType<Self::Api>,
     ) -> ClientId<Self::Api> {
-        let next_client_seq = self.host_info().update(|host_info| {
-            let returned_val = host_info.next_client_seq;
-            host_info.next_client_seq += 1;
-
-            returned_val
-        });
+        let next_client_seq = self.get_next_client_seq();
 
         sc_format!("{}-{}", client_type, next_client_seq)
     }

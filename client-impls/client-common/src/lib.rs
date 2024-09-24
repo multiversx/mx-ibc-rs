@@ -1,6 +1,6 @@
 #![no_std]
 
-use common_types::{channel_types::height, Hash, Timestamp};
+use common_types::{channel_types::height, ClientId, Hash, Timestamp};
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
@@ -10,7 +10,7 @@ pub struct ConsensusStateUpdate<M: ManagedTypeApi> {
     pub height: height::Data,
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, PartialEq)]
+#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, PartialEq)]
 pub enum ClientStatus {
     None,
     Active,
@@ -18,11 +18,34 @@ pub enum ClientStatus {
     Frozen,
 }
 
-#[derive(TypeAbi, TopEncode)]
+#[derive(TypeAbi, TopEncode, TopDecode)]
 pub struct GetLatestInfoResultType {
     pub latest_height: height::Data,
     pub latest_timestamp: Timestamp,
     pub client_status: ClientStatus,
+}
+
+#[derive(TypeAbi, TopEncode, TopDecode)]
+pub struct VerifyMembershipArgs<M: ManagedTypeApi> {
+    pub client_id: ClientId<M>,
+    pub height: height::Data,
+    pub delay_time_period: Timestamp,
+    pub delay_block_period: u64,
+    pub proof: Hash<M>,
+    pub prefix: ManagedBuffer<M>,
+    pub path: ManagedBuffer<M>,
+    pub value: ManagedBuffer<M>,
+}
+
+#[derive(TypeAbi, TopEncode, TopDecode)]
+pub struct VerifyNonMembershipArgs<M: ManagedTypeApi> {
+    pub client_id: ClientId<M>,
+    pub height: height::Data,
+    pub delay_time_period: Timestamp,
+    pub delay_block_period: u64,
+    pub proof: Hash<M>,
+    pub prefix: ManagedBuffer<M>,
+    pub path: ManagedBuffer<M>,
 }
 
 #[multiversx_sc::module]

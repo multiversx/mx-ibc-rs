@@ -6,9 +6,9 @@
 
 // Init:                                 1
 // Upgrade:                              1
-// Endpoints:                            7
+// Endpoints:                           12
 // Async Callback (empty):               1
-// Total number of exported functions:  10
+// Total number of exported functions:  15
 
 #![no_std]
 
@@ -16,10 +16,15 @@ multiversx_sc_wasm_adapter::allocator!();
 multiversx_sc_wasm_adapter::panic_handler!();
 
 multiversx_sc_wasm_adapter::endpoints! {
-    host
+    connection
     (
         init => init
         upgrade => upgrade
+        getCompatibleVersions => get_compatible_versions
+        connectionOpenInit => connection_open_init
+        connectionOpenTry => connection_open_try
+        connectionOpenAck => connection_open_ack
+        connectionOpenConfirm => connection_open_confirm
         setExpectedTimePerBlock => set_expected_time_per_block
         registerClient => register_client
         bindPort => bind_port

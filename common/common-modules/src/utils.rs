@@ -20,4 +20,11 @@ pub trait UtilsModule {
             None => sc_panic!("Overlow!!!"),
         }
     }
+
+    fn encode_to_buffer<T: TopEncode>(&self, value: &T) -> ManagedBuffer {
+        let mut encoded_value = ManagedBuffer::new();
+        let _ = value.top_encode(&mut encoded_value);
+
+        encoded_value
+    }
 }

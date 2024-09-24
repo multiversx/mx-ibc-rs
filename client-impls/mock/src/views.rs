@@ -1,4 +1,6 @@
-use client_common::{ClientStatus, GetLatestInfoResultType};
+use client_common::{
+    ClientStatus, GetLatestInfoResultType, VerifyMembershipArgs, VerifyNonMembershipArgs,
+};
 use common_types::{channel_types::height, ClientId, Hash, Timestamp};
 use host::host_views::ProxyTrait as _;
 
@@ -58,43 +60,29 @@ pub trait ViewsModule:
     ///
     /// The caller is expected to construct the full CommitmentPath from a CommitmentPrefix and a standardized path (as defined in ICS 24)
     #[view(verifyMembership)]
-    fn verify_membership(
-        &self,
-        client_id: ClientId<Self::Api>,
-        height: height::Data,
-        _delay_time_period: Timestamp,
-        _delay_block_period: u64,
-        proof: Hash<Self::Api>,
-        prefix: ManagedBuffer,
-        path: ManagedBuffer,
-        value: ManagedBuffer,
-    ) -> bool {
-        let _ = self.get_timestamp_at_height(&client_id, &height);
-        self.require_ibc_prefix(&prefix);
+    fn verify_membership(&self, args: VerifyMembershipArgs<Self::Api>) -> bool {
+        let _ = self.get_timestamp_at_height(&args.client_id, &args.height);
+        self.require_ibc_prefix(&args.prefix);
 
-        let local_proof = self.encode_and_hash(&height, &prefix, &path, &value);
-        local_proof == proof
+        let local_proof = self.encode_and_hash(&args.height, &args.prefix, &args.path, &args.value);
+        local_proof == args.proof
     }
 
     /// A generic proof verification method which verifies the absence of a given CommitmentPath at a specified height
     ///
     /// The caller is expected to construct the full CommitmentPath from a CommitmentPrefix and a standardized path (as defined in ICS 24)
     #[view(verifyNonMembership)]
-    fn verify_non_membership(
-        &self,
-        client_id: ClientId<Self::Api>,
-        height: height::Data,
-        _delay_time_period: Timestamp,
-        _delay_block_period: u64,
-        proof: Hash<Self::Api>,
-        prefix: ManagedBuffer,
-        path: ManagedBuffer,
-    ) -> bool {
-        let _ = self.get_timestamp_at_height(&client_id, &height);
-        self.require_ibc_prefix(&prefix);
+    fn verify_non_membership(&self, args: VerifyNonMembershipArgs<Self::Api>) -> bool {
+        let _ = self.get_timestamp_at_height(&args.client_id, &args.height);
+        self.require_ibc_prefix(&args.prefix);
 
-        let local_proof = self.encode_and_hash(&height, &prefix, &path, &ManagedBuffer::new());
-        local_proof == proof
+        let local_proof = self.encode_and_hash(
+            &args.height,
+            &args.prefix,
+            &args.path,
+            &ManagedBuffer::new(),
+        );
+        local_proof == args.proof
     }
 
     /// returns the clientState corresponding to `clientId`
