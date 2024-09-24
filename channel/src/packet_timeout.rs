@@ -1,15 +1,10 @@
-use client_common::{VerifyMembershipArgs, VerifyNonMembershipArgs};
 use common_types::{
-    channel_types::{
-        channel::{self, Order},
-        channel_counterparty, height,
-    },
-    connection_types::connection_end,
-    ChannelId, ClientId, ConnectionHops, Hash, PortId, Sequence, Timestamp,
+    channel_types::{channel, height},
+    ChannelId, ClientId, Hash, PortId, Sequence, Timestamp,
 };
 
 use crate::{
-    channel_libs::packet_types::{MsgTimeoutOnClose, MsgTimeoutPacket, Packet, TimeoutArgs},
+    channel_libs::packet_types::{MsgTimeoutOnClose, MsgTimeoutPacket, Packet},
     client_interface, ibc_module_interface,
 };
 
@@ -24,6 +19,7 @@ pub trait PacketTimeoutModule:
     + host::storage::StorageModule
     + host::commitment::CommitmentModule
     + common_modules::utils::UtilsModule
+    + crate::membership::MembershipModule
     + crate::channel_libs::events::EventsModule
 {
     #[endpoint(timeoutPacket)]
@@ -172,130 +168,6 @@ pub trait PacketTimeoutModule:
         self.crypto().keccak256(first_hashing.as_managed_buffer())
     }
 
-    fn check_channel_membership(
-        &self,
-        ordering: channel::Order,
-        client_impl: ManagedAddress,
-        connection_info: &connection_end::Data<Self::Api>,
-        timeout_args: &dyn TimeoutArgs<Self::Api>,
-    ) {
-        match ordering {
-            Order::Ordered => {
-                self.check_channel_ordered_membership(client_impl, connection_info, timeout_args)
-            }
-            Order::Unordered => {
-                self.check_channel_unordered_membership(client_impl, connection_info, timeout_args)
-            }
-            Order::NoneUnspecified => sc_panic!("Unknown channel order"),
-        };
-    }
-
-    fn check_channel_ordered_membership(
-        &self,
-        client_impl: ManagedAddress,
-        connection_info: &connection_end::Data<Self::Api>,
-        timeout_args: &dyn TimeoutArgs<Self::Api>,
-    ) {
-        let packet = timeout_args.get_packet();
-        require!(
-            packet.sequence >= timeout_args.get_next_seq_recv(),
-            "Packet may already be received"
-        );
-
-        let encoded_value = self.encode_to_buffer(&timeout_args.get_next_seq_recv());
-        let membership_args = VerifyMembershipArgs {
-            client_id: connection_info.client_id.clone(),
-            height: timeout_args.get_proof_height(),
-            delay_time_period: connection_info.delay_period,
-            delay_block_period: self.calculate_block_delay(connection_info.delay_period),
-            proof: timeout_args.get_proof().clone(),
-            prefix: connection_info.counterparty.prefix.key_prefix.clone(),
-            path: self.get_next_seq_recv_commitment_path(&packet.dest_port, &packet.dest_channel),
-            value: encoded_value,
-        };
-        let membership_result: bool = self
-            .generic_client_proxy_impl(client_impl)
-            .verify_membership(membership_args)
-            .execute_on_dest_context();
-        require!(membership_result, "Failed to verify next seq receive");
-
-        self.channel_info(&packet.source_port, &packet.source_channel)
-            .update(|channel_info| channel_info.channel.state = channel::State::Closed);
-    }
-
-    fn check_channel_unordered_membership(
-        &self,
-        client_impl: ManagedAddress,
-        connection_info: &connection_end::Data<Self::Api>,
-        timeout_args: &dyn TimeoutArgs<Self::Api>,
-    ) {
-        let packet = timeout_args.get_packet();
-        let path = self.get_packet_receipt_commitment_path(
-            &packet.dest_port,
-            &packet.dest_channel,
-            packet.sequence,
-        );
-        let non_membership_args = VerifyNonMembershipArgs {
-            client_id: connection_info.client_id.clone(),
-            height: timeout_args.get_proof_height(),
-            delay_time_period: connection_info.delay_period,
-            delay_block_period: self.calculate_block_delay(connection_info.delay_period),
-            proof: timeout_args.get_proof().clone(),
-            prefix: connection_info.counterparty.prefix.key_prefix.clone(),
-            path,
-        };
-        let non_membership_result: bool = self
-            .generic_client_proxy_impl(client_impl)
-            .verify_non_membership(non_membership_args)
-            .execute_on_dest_context();
-        require!(
-            non_membership_result,
-            "Failed to verify packet receipt absence"
-        );
-    }
-
-    fn check_expected_channel_membership(
-        &self,
-        client_impl: ManagedAddress,
-        channel: &channel::Data<Self::Api>,
-        connection_info: &connection_end::Data<Self::Api>,
-        args: &MsgTimeoutOnClose<Self::Api>,
-    ) {
-        let expected_channel = channel::Data {
-            state: channel::State::Closed,
-            ordering: channel.ordering,
-            counterparty: channel_counterparty::Data {
-                port_id: args.packet.source_port.clone(),
-                channel_id: args.packet.source_channel.clone(),
-            },
-            connection_hops: ConnectionHops::from_single_item(
-                connection_info.counterparty.connection_id.clone(),
-            ),
-            version: channel.version.clone(),
-            upgrade_sequence: args.counterparty_upgrade_seq,
-        };
-
-        let encoded_value = self.encode_to_buffer(&expected_channel);
-        let membership_args = VerifyMembershipArgs {
-            client_id: connection_info.client_id.clone(),
-            height: args.proof_height,
-            delay_time_period: connection_info.delay_period,
-            delay_block_period: self.calculate_block_delay(connection_info.delay_period),
-            proof: args.proof_close.clone(),
-            prefix: connection_info.counterparty.prefix.key_prefix.clone(),
-            path: self.get_next_seq_recv_commitment_path(
-                &args.packet.dest_port,
-                &args.packet.dest_channel,
-            ),
-            value: encoded_value,
-        };
-        let membership_result: bool = self
-            .generic_client_proxy_impl(client_impl)
-            .verify_membership(membership_args)
-            .execute_on_dest_context();
-        require!(membership_result, "Failed to verify channel state");
-    }
-
     fn timeout_packet_final(&self, packet: Packet<Self::Api>) {
         let caller = self.blockchain().get_caller();
         let ibc_module = self.lookup_module_by_channel(&packet.source_port, &packet.source_channel);
@@ -305,20 +177,6 @@ pub trait PacketTimeoutModule:
             .execute_on_dest_context();
 
         self.timeout_packet_event(&packet);
-    }
-
-    /// calculates the block delay based on the expected time per block
-    fn calculate_block_delay(&self, time_delay: Timestamp) -> Timestamp {
-        if time_delay == 0 {
-            return 0;
-        }
-
-        let host_info = self.host_info().get();
-        if host_info.expected_time_per_block == 0 {
-            return 0;
-        }
-
-        (time_delay + host_info.expected_time_per_block - 1) / host_info.expected_time_per_block
     }
 
     #[proxy]
