@@ -87,8 +87,7 @@ pub trait ConnectionInternalModule:
         connection_info: &connection_end::Data<Self::Api>,
     ) {
         let connection_key = self.get_connection_commitment_key(connection_id);
-        let mut encoded_connection = ManagedBuffer::new();
-        let _ = connection_info.top_encode(&mut encoded_connection);
+        let encoded_connection = self.encode_to_buffer(&connection_info);
         let hashed_connection = self.crypto().keccak256(encoded_connection);
 
         self.commitments(&connection_key).set(&hashed_connection);
@@ -146,10 +145,7 @@ pub trait ConnectionInternalModule:
     fn verify_connection_state(&self, args: VerifyConnectionStateArgs<Self::Api>) {
         let client = self.check_and_get_client(&args.connection_info.client_id);
         let connection_path = self.get_connection_path(&args.counterparty_connection_id);
-        let mut encoded_connection = ManagedBuffer::new();
-        let _ = args
-            .counterparty_connection_info
-            .top_encode(&mut encoded_connection);
+        let encoded_connection = self.encode_to_buffer(&args.counterparty_connection_info);
 
         let args = VerifyMembershipArgs {
             client_id: args.connection_info.client_id,
