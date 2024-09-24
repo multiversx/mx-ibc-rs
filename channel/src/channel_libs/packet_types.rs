@@ -26,7 +26,7 @@ pub enum PacketReceipt {
 /// `timeout_height` indicates a consensus height on the destination chain after which the packet will no longer be processed, and will instead count as having timed-out
 ///
 /// `timeout_timestamp` indicates a timestamp on the destination chain after which the packet will no longer be processed, and will instead count as having timed-out
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
+#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Clone)]
 pub struct Packet<M: ManagedTypeApi> {
     pub sequence: Sequence,
     pub source_port: PortId<M>,

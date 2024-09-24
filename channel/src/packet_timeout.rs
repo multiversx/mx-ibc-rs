@@ -8,7 +8,10 @@ use common_types::{
     ChannelId, ClientId, Hash, PortId, Sequence, Timestamp,
 };
 
-use crate::channel_libs::packet_types::{MsgTimeoutPacket, Packet, TimeoutArgs};
+use crate::{
+    channel_libs::packet_types::{MsgTimeoutPacket, Packet, TimeoutArgs},
+    ibc_module_interface,
+};
 
 multiversx_sc::imports!();
 
@@ -82,19 +85,18 @@ pub trait PacketTimeoutModule:
 
         commitment_mapper.clear();
 
-        let ibc_module =
-            self.lookup_module_by_channel(&args.packet.source_port, &args.packet.source_channel);
-
-        self.timeout_packet_event(&args.packet);
-
-        /*
-        lookupModuleByChannel(msg_.packet.sourcePort, msg_.packet.sourceChannel).onTimeoutPacket(
-            msg_.packet, _msgSender()
-        );
-         */
-
         self.channel_info(&args.packet.source_port, &args.packet.source_channel)
             .set(channel_info);
+
+        let caller = self.blockchain().get_caller();
+        let ibc_module =
+            self.lookup_module_by_channel(&args.packet.source_port, &args.packet.source_channel);
+        let _: () = self
+            .ibc_module_proxy_impl(ibc_module)
+            .on_timeout_packet(args.packet.clone(), caller)
+            .execute_on_dest_context();
+
+        self.timeout_packet_event(&args.packet);
 
         // TODO: Check args for other function
     }
@@ -268,4 +270,10 @@ pub trait PacketTimeoutModule:
         &self,
         sc_address: ManagedAddress,
     ) -> generic_client_proxy::GenericClientProxy<Self::Api>;
+
+    #[proxy]
+    fn ibc_module_proxy_impl(
+        &self,
+        sc_address: ManagedAddress,
+    ) -> ibc_module_interface::ibc_module_proxy::IbcModuleProxy<Self::Api>;
 }
