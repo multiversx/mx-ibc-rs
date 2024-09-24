@@ -2,20 +2,21 @@ use client_common::{VerifyMembershipArgs, VerifyNonMembershipArgs};
 use common_types::{
     channel_types::{
         channel::{self, Order},
-        height,
+        channel_counterparty, height,
     },
     connection_types::connection_end,
-    ChannelId, ClientId, Hash, PortId, Sequence, Timestamp,
+    ChannelId, ClientId, ConnectionHops, Hash, PortId, Sequence, Timestamp,
 };
 
 use crate::{
-    channel_libs::packet_types::{MsgTimeoutPacket, Packet, TimeoutArgs},
+    channel_libs::packet_types::{MsgTimeoutOnClose, MsgTimeoutPacket, Packet, TimeoutArgs},
     client_interface, ibc_module_interface,
 };
 
 multiversx_sc::imports!();
 
 static UNEXPECTED_PACKET_DEST_ERR_MSG: &[u8] = b"Unexpected packet destination";
+static PACKET_COMM_MISMATCH_ERR_MSG: &[u8] = b"Packet commitment mismatch";
 
 #[multiversx_sc::module]
 pub trait PacketTimeoutModule:
@@ -50,7 +51,7 @@ pub trait PacketTimeoutModule:
         let packet_commitment = self.get_packet_commitment(&args.packet);
         require!(
             commitment == packet_commitment,
-            "Packet commitment mismatch"
+            PACKET_COMM_MISMATCH_ERR_MSG
         );
 
         self.check_channel_membership(
@@ -62,20 +63,45 @@ pub trait PacketTimeoutModule:
 
         commitment_mapper.clear();
 
-        self.channel_info(&args.packet.source_port, &args.packet.source_channel)
-            .set(channel_info);
+        self.timeout_packet_final(args.packet);
+    }
 
-        let caller = self.blockchain().get_caller();
-        let ibc_module =
-            self.lookup_module_by_channel(&args.packet.source_port, &args.packet.source_channel);
-        let _: () = self
-            .ibc_module_proxy_impl(ibc_module)
-            .on_timeout_packet(args.packet.clone(), caller)
-            .execute_on_dest_context();
+    #[endpoint(timeoutOnClose)]
+    fn timeout_on_close(&self, args: MsgTimeoutOnClose<Self::Api>) {
+        let channel_info =
+            self.try_get_channel_info(&args.packet.source_port, &args.packet.source_channel);
+        let channel = &channel_info.channel;
+        self.check_expected_args(&args.packet, channel);
 
-        self.timeout_packet_event(&args.packet);
+        let connection_info = self.try_get_connection_info(&channel.connection_hops.get(0));
+        let client_info = self.try_get_client_info(&connection_info.client_id);
 
-        // TODO: Check args for other function
+        let commitment_mapper = self.check_and_get_commitment_mapper(
+            &args.packet.source_port,
+            &args.packet.source_channel,
+            args.packet.sequence,
+        );
+        let commitment = commitment_mapper.get();
+        let packet_commitment = self.get_packet_commitment(&args.packet);
+        require!(
+            commitment == packet_commitment,
+            PACKET_COMM_MISMATCH_ERR_MSG
+        );
+
+        self.check_expected_channel_membership(
+            client_info.client_impl.clone(),
+            channel,
+            &connection_info,
+            &args,
+        );
+        self.check_channel_membership(
+            channel.ordering,
+            client_info.client_impl,
+            &connection_info,
+            &args,
+        );
+
+        self.timeout_packet_final(args.packet);
     }
 
     fn check_expected_args(&self, packet: &Packet<Self::Api>, channel: &channel::Data<Self::Api>) {
@@ -226,6 +252,59 @@ pub trait PacketTimeoutModule:
             non_membership_result,
             "Failed to verify packet receipt absence"
         );
+    }
+
+    fn check_expected_channel_membership(
+        &self,
+        client_impl: ManagedAddress,
+        channel: &channel::Data<Self::Api>,
+        connection_info: &connection_end::Data<Self::Api>,
+        args: &MsgTimeoutOnClose<Self::Api>,
+    ) {
+        let expected_channel = channel::Data {
+            state: channel::State::Closed,
+            ordering: channel.ordering,
+            counterparty: channel_counterparty::Data {
+                port_id: args.packet.source_port.clone(),
+                channel_id: args.packet.source_channel.clone(),
+            },
+            connection_hops: ConnectionHops::from_single_item(
+                connection_info.counterparty.connection_id.clone(),
+            ),
+            version: channel.version.clone(),
+            upgrade_sequence: args.counterparty_upgrade_seq,
+        };
+
+        let encoded_value = self.encode_to_buffer(&expected_channel);
+        let membership_args = VerifyMembershipArgs {
+            client_id: connection_info.client_id.clone(),
+            height: args.proof_height,
+            delay_time_period: connection_info.delay_period,
+            delay_block_period: self.calculate_block_delay(connection_info.delay_period),
+            proof: args.proof_close.clone(),
+            prefix: connection_info.counterparty.prefix.key_prefix.clone(),
+            path: self.get_next_seq_recv_commitment_path(
+                &args.packet.dest_port,
+                &args.packet.dest_channel,
+            ),
+            value: encoded_value,
+        };
+        let membership_result: bool = self
+            .generic_client_proxy_impl(client_impl)
+            .verify_membership(membership_args)
+            .execute_on_dest_context();
+        require!(membership_result, "Failed to verify channel state");
+    }
+
+    fn timeout_packet_final(&self, packet: Packet<Self::Api>) {
+        let caller = self.blockchain().get_caller();
+        let ibc_module = self.lookup_module_by_channel(&packet.source_port, &packet.source_channel);
+        let _: () = self
+            .ibc_module_proxy_impl(ibc_module)
+            .on_timeout_packet(packet.clone(), caller)
+            .execute_on_dest_context();
+
+        self.timeout_packet_event(&packet);
     }
 
     /// calculates the block delay based on the expected time per block
