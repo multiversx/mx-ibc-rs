@@ -10,8 +10,7 @@ use common_types::{
 
 use crate::{
     channel_libs::packet_types::{MsgTimeoutPacket, Packet, TimeoutArgs},
-    client_interface::generic_client_proxy,
-    ibc_module_interface,
+    client_interface, ibc_module_interface,
 };
 
 multiversx_sc::imports!();
@@ -247,7 +246,7 @@ pub trait PacketTimeoutModule:
     fn generic_client_proxy_impl(
         &self,
         sc_address: ManagedAddress,
-    ) -> generic_client_proxy::GenericClientProxy<Self::Api>;
+    ) -> client_interface::generic_client_proxy::GenericClientProxy<Self::Api>;
 
     #[proxy]
     fn ibc_module_proxy_impl(
