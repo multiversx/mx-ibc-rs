@@ -18,7 +18,7 @@ pub mod channel {
         FlushComplete,
     }
 
-    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
+    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Clone, Copy)]
     pub enum Order {
         NoneUnspecified,
         Unordered,

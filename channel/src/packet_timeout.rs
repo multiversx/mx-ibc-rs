@@ -47,10 +47,10 @@ pub trait PacketTimeoutModule:
 {
     #[endpoint(timeoutPacket)]
     fn timeout_packet(&self, args: MsgTimeoutPacket<Self::Api>) {
-        let mut channel_info =
+        let channel_info =
             self.try_get_channel_info(&args.packet.source_port, &args.packet.source_channel);
-        let mut channel = &mut channel_info.channel;
-        self.check_expected_args(&args.packet, &channel);
+        let channel = &channel_info.channel;
+        self.check_expected_args(&args.packet, channel);
 
         let connection_info = self.try_get_connection_info(&channel.connection_hops.get(0));
         let client_info = self.try_get_client_info(&connection_info.client_id);
@@ -74,9 +74,9 @@ pub trait PacketTimeoutModule:
         );
 
         self.check_channel_membership(
+            channel.ordering,
             client_info.client_impl,
             &connection_info,
-            &mut channel,
             &args,
         );
 
@@ -93,7 +93,8 @@ pub trait PacketTimeoutModule:
         );
          */
 
-        // TODO: Set in storage
+        self.channel_info(&args.packet.source_port, &args.packet.source_channel)
+            .set(channel_info);
 
         // TODO: Check args for other function
     }
@@ -168,20 +169,17 @@ pub trait PacketTimeoutModule:
 
     fn check_channel_membership(
         &self,
+        ordering: channel::Order,
         client_impl: ManagedAddress,
         connection_info: &connection_end::Data<Self::Api>,
-        channel_info: &mut channel::Data<Self::Api>,
         timeout_args: &dyn TimeoutArgs<Self::Api>,
     ) {
-        match channel_info.ordering {
-            Order::Ordered => self.check_channel_ordered_membership(
-                client_impl,
-                &connection_info,
-                channel_info,
-                timeout_args,
-            ),
+        match ordering {
+            Order::Ordered => {
+                self.check_channel_ordered_membership(client_impl, connection_info, timeout_args)
+            }
             Order::Unordered => {
-                self.check_channel_unordered_membership(client_impl, &connection_info, timeout_args)
+                self.check_channel_unordered_membership(client_impl, connection_info, timeout_args)
             }
             Order::NoneUnspecified => sc_panic!("Unknown channel order"),
         };
@@ -191,7 +189,6 @@ pub trait PacketTimeoutModule:
         &self,
         client_impl: ManagedAddress,
         connection_info: &connection_end::Data<Self::Api>,
-        channel_info: &mut channel::Data<Self::Api>,
         timeout_args: &dyn TimeoutArgs<Self::Api>,
     ) {
         let packet = timeout_args.get_packet();
@@ -217,7 +214,8 @@ pub trait PacketTimeoutModule:
             .execute_on_dest_context();
         require!(membership_result, "Failed to verify next seq receive");
 
-        channel_info.state = channel::State::Closed;
+        self.channel_info(&packet.source_port, &packet.source_channel)
+            .update(|channel_info| channel_info.channel.state = channel::State::Closed);
     }
 
     fn check_channel_unordered_membership(
