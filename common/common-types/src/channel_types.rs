@@ -4,6 +4,9 @@ pub mod channel {
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
+    pub static ORDERED: &[u8] = b"ORDER_ORDERED";
+    pub static UNORDERED: &[u8] = b"ORDER_UNORDERED";
+
     #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
     pub enum State {
         UninitializedUnspecified,
@@ -20,6 +23,18 @@ pub mod channel {
         NoneUnspecified,
         Unordered,
         Ordered,
+    }
+
+    impl Order {
+        pub fn to_byte_slice<M: ManagedTypeApi>(&self) -> &[u8] {
+            match *self {
+                Order::NoneUnspecified => {
+                    M::error_api_impl().signal_error(b"Unknown channel order")
+                }
+                Order::Unordered => UNORDERED,
+                Order::Ordered => ORDERED,
+            }
+        }
     }
 
     #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
