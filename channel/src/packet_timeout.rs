@@ -10,35 +10,13 @@ use common_types::{
 
 use crate::{
     channel_libs::packet_types::{MsgTimeoutPacket, Packet, TimeoutArgs},
+    client_interface::generic_client_proxy,
     ibc_module_interface,
 };
 
 multiversx_sc::imports!();
 
 static UNEXPECTED_PACKET_DEST_ERR_MSG: &[u8] = b"Unexpected packet destination";
-
-mod generic_client_proxy {
-    use client_common::{VerifyMembershipArgs, VerifyNonMembershipArgs};
-    use common_types::{channel_types::height, ClientId, Timestamp};
-
-    multiversx_sc::imports!();
-
-    #[multiversx_sc::proxy]
-    pub trait GenericClientProxy {
-        #[view(getTimestampAtHeight)]
-        fn get_timestamp_at_height(
-            &self,
-            client_id: &ClientId<Self::Api>,
-            height: &height::Data,
-        ) -> Timestamp;
-
-        #[view(verifyMembership)]
-        fn verify_membership(&self, args: VerifyMembershipArgs<Self::Api>) -> bool;
-
-        #[view(verifyNonMembership)]
-        fn verify_non_membership(&self, args: VerifyNonMembershipArgs<Self::Api>) -> bool;
-    }
-}
 
 #[multiversx_sc::module]
 pub trait PacketTimeoutModule:
