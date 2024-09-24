@@ -1,5 +1,5 @@
 pub mod channel {
-    use crate::{channel_types::channel_counterparty, Sequence};
+    use crate::{channel_types::channel_counterparty, Sequence, Version};
 
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
@@ -43,7 +43,7 @@ pub mod channel {
         pub ordering: Order,
         pub counterparty: channel_counterparty::Data<M>,
         pub connection_hops: ManagedVec<M, ManagedBuffer<M>>, // TODO: Maybe custom type
-        pub version: ManagedBuffer<M>,
+        pub version: Version<M>,
         pub upgrade_sequence: Sequence,
     }
 }
@@ -159,6 +159,8 @@ pub mod upgrade {
 }
 
 pub mod upgrade_fields {
+    use crate::Version;
+
     use super::channel;
 
     multiversx_sc::imports!();
@@ -168,7 +170,7 @@ pub mod upgrade_fields {
     pub struct Data<M: ManagedTypeApi> {
         pub ordering: channel::Order,
         pub connection_hops: ManagedVec<M, ManagedBuffer<M>>, // TODO: Maybe custom type
-        pub version: ManagedBuffer<M>,
+        pub version: Version<M>,
     }
 }
 

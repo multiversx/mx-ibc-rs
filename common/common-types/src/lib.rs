@@ -22,6 +22,7 @@ pub type Feature<M> = ManagedBuffer<M>;
 pub type FeatureId<M> = ManagedBuffer<M>;
 pub type PortId<M> = ManagedBuffer<M>;
 pub type Path<M> = ManagedBuffer<M>;
+pub type Version<M> = ManagedBuffer<M>;
 
 pub type VersionVec<M> = ManagedVec<M, version::Data<M>>;
 pub type FeatureVec<M> = ManagedVec<M, Feature<M>>;

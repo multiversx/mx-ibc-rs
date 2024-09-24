@@ -7,6 +7,7 @@ pub mod channel_libs;
 #[multiversx_sc::contract]
 pub trait Channel:
     channel_libs::ibc_channel_lib::IbcChannelLibModule
+    + channel_libs::events::EventsModule
     + host::commitment::CommitmentModule
     + host::host_config::HostConfigModule
     + host::host_views::HostViewsModule
