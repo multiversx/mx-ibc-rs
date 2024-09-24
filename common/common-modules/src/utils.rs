@@ -1,8 +1,9 @@
-use common_types::Timestamp;
+use common_types::{Hash, Timestamp, HASH_LENGTH};
 
 multiversx_sc::imports!();
 
 const NANO_SECONDS_MULT: u64 = 1_000_000_000;
+const EMPTY_HASH: &[u8; HASH_LENGTH] = &[0u8; HASH_LENGTH];
 
 #[multiversx_sc::module]
 pub trait UtilsModule {
@@ -26,5 +27,9 @@ pub trait UtilsModule {
         let _ = value.top_encode(&mut encoded_value);
 
         encoded_value
+    }
+
+    fn is_empty_hash(&self, hash: &Hash<Self::Api>) -> bool {
+        hash == &Hash::new_from_bytes(EMPTY_HASH)
     }
 }

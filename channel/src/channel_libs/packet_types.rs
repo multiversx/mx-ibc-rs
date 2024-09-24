@@ -34,7 +34,7 @@ pub struct Packet<M: ManagedTypeApi> {
     pub dest_port: PortId<M>,
     pub dest_channel: ChannelId<M>,
     pub data: ManagedBuffer<M>,
-    pub timemout_height: height::Data,
+    pub timeout_height: height::Data,
     pub timeout_timestamp: Timestamp,
 }
 
@@ -69,4 +69,58 @@ pub struct MsgTimeoutOnClose<M: ManagedTypeApi> {
     pub proof_height: height::Data,
     pub next_seq_recv: Sequence,
     pub counterparty_upgrade_seq: Sequence,
+}
+
+pub trait TimeoutArgs<M: ManagedTypeApi> {
+    fn get_packet(&self) -> &Packet<M>;
+
+    fn get_proof(&self) -> &Hash<M>;
+
+    fn get_proof_height(&self) -> height::Data;
+
+    fn get_next_seq_recv(&self) -> Sequence;
+}
+
+impl<M: ManagedTypeApi> TimeoutArgs<M> for MsgTimeoutPacket<M> {
+    #[inline(always)]
+    fn get_packet(&self) -> &Packet<M> {
+        &self.packet
+    }
+
+    #[inline(always)]
+    fn get_proof(&self) -> &Hash<M> {
+        &self.proof
+    }
+
+    #[inline(always)]
+    fn get_proof_height(&self) -> height::Data {
+        self.proof_height
+    }
+
+    #[inline(always)]
+    fn get_next_seq_recv(&self) -> Sequence {
+        self.next_seq_recv
+    }
+}
+
+impl<M: ManagedTypeApi> TimeoutArgs<M> for MsgTimeoutOnClose<M> {
+    #[inline(always)]
+    fn get_packet(&self) -> &Packet<M> {
+        &self.packet
+    }
+
+    #[inline(always)]
+    fn get_proof(&self) -> &Hash<M> {
+        &self.proof_unreceived
+    }
+
+    #[inline(always)]
+    fn get_proof_height(&self) -> height::Data {
+        self.proof_height
+    }
+
+    #[inline(always)]
+    fn get_next_seq_recv(&self) -> Sequence {
+        self.next_seq_recv
+    }
 }

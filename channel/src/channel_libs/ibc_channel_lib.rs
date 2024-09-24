@@ -1,8 +1,6 @@
-use common_types::{Hash, HASH_LENGTH};
+use common_types::Hash;
 
 use super::packet_types::PacketReceipt;
-
-const EMPTY_HASH: &[u8; HASH_LENGTH] = &[0u8; HASH_LENGTH];
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
@@ -10,7 +8,7 @@ multiversx_sc::derive_imports!();
 #[multiversx_sc::module]
 pub trait IbcChannelLibModule: common_modules::utils::UtilsModule {
     fn receipt_commitment_to_receipt(&self, commitment: &Hash<Self::Api>) -> PacketReceipt {
-        if commitment == &Hash::new_from_bytes(EMPTY_HASH) {
+        if self.is_empty_hash(commitment) {
             return PacketReceipt::None;
         }
 

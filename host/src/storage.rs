@@ -74,6 +74,34 @@ pub trait StorageModule {
         })
     }
 
+    fn try_get_client_info(&self, client_id: &ClientId<Self::Api>) -> ClientInfo<Self::Api> {
+        let mapper = self.client_info(client_id);
+        require!(!mapper.is_empty(), "Client not found");
+
+        mapper.get()
+    }
+
+    fn try_get_connection_info(
+        &self,
+        connection_id: &ConnectionId<Self::Api>,
+    ) -> connection_end::Data<Self::Api> {
+        let mapper = self.connection_info(connection_id);
+        require!(!mapper.is_empty(), "Connection not found");
+
+        mapper.get()
+    }
+
+    fn try_get_channel_info(
+        &self,
+        port_id: &PortId<Self::Api>,
+        channel_id: &ChannelId<Self::Api>,
+    ) -> ChannelInfo<Self::Api> {
+        let mapper = self.channel_info(port_id, channel_id);
+        require!(!mapper.is_empty(), "Channel not found");
+
+        mapper.get()
+    }
+
     #[storage_mapper("commitments")]
     fn commitments(&self, commitment_hash: &Hash<Self::Api>) -> SingleValueMapper<Hash<Self::Api>>;
 
@@ -111,6 +139,7 @@ pub trait StorageModule {
     #[storage_mapper("channelInfo")]
     fn channel_info(
         &self,
+        port_id: &PortId<Self::Api>,
         channel_id: &ChannelId<Self::Api>,
     ) -> SingleValueMapper<ChannelInfo<Self::Api>>;
 }

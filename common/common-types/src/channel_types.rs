@@ -91,6 +91,10 @@ pub mod height {
             }
         }
 
+        pub fn is_zero(&self) -> bool {
+            self.revision_number == 0 && self.revision_height == 0
+        }
+
         pub fn to_biguint_concat<M: ManagedTypeApi>(&self) -> BigUint<M> {
             let mut buffer = ManagedBuffer::new();
             let _ = self.revision_number.dep_encode(&mut buffer);

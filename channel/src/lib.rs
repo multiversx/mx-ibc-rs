@@ -3,11 +3,14 @@
 multiversx_sc::imports!();
 
 pub mod channel_libs;
+pub mod ibc_module_interface;
+pub mod packet_timeout;
 
 #[multiversx_sc::contract]
 pub trait Channel:
     channel_libs::ibc_channel_lib::IbcChannelLibModule
     + channel_libs::events::EventsModule
+    + packet_timeout::PacketTimeoutModule
     + host::commitment::CommitmentModule
     + host::host_config::HostConfigModule
     + host::host_views::HostViewsModule
