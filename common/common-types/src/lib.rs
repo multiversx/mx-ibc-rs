@@ -26,3 +26,4 @@ pub type Version<M> = ManagedBuffer<M>;
 
 pub type VersionVec<M> = ManagedVec<M, version::Data<M>>;
 pub type FeatureVec<M> = ManagedVec<M, Feature<M>>;
+pub type ConnectionHops<M> = ManagedVec<M, ConnectionId<M>>;

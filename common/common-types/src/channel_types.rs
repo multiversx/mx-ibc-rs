@@ -1,5 +1,5 @@
 pub mod channel {
-    use crate::{channel_types::channel_counterparty, Sequence, Version};
+    use crate::{channel_types::channel_counterparty, ConnectionHops, Sequence, Version};
 
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
@@ -42,7 +42,7 @@ pub mod channel {
         pub state: State,
         pub ordering: Order,
         pub counterparty: channel_counterparty::Data<M>,
-        pub connection_hops: ManagedVec<M, ManagedBuffer<M>>, // TODO: Maybe custom type
+        pub connection_hops: ConnectionHops<M>,
         pub version: Version<M>,
         pub upgrade_sequence: Sequence,
     }
@@ -159,7 +159,7 @@ pub mod upgrade {
 }
 
 pub mod upgrade_fields {
-    use crate::Version;
+    use crate::{ConnectionHops, Version};
 
     use super::channel;
 
@@ -169,7 +169,7 @@ pub mod upgrade_fields {
     #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
     pub struct Data<M: ManagedTypeApi> {
         pub ordering: channel::Order,
-        pub connection_hops: ManagedVec<M, ManagedBuffer<M>>, // TODO: Maybe custom type
+        pub connection_hops: ConnectionHops<M>,
         pub version: Version<M>,
     }
 }
