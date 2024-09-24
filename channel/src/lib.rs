@@ -3,8 +3,7 @@
 multiversx_sc::imports!();
 
 pub mod channel_libs;
-pub mod client_interface;
-pub mod ibc_module_interface;
+pub mod interfaces;
 pub mod membership;
 pub mod packet_timeout;
 

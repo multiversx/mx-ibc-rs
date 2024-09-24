@@ -5,7 +5,7 @@ use common_types::{
 
 use crate::{
     channel_libs::packet_types::{MsgTimeoutOnClose, MsgTimeoutPacket, Packet},
-    client_interface, ibc_module_interface,
+    interfaces::{client_interface, ibc_module_interface},
 };
 
 multiversx_sc::imports!();
