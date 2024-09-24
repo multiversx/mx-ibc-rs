@@ -127,6 +127,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "channel"
+version = "0.0.0"
+dependencies = [
+ "common-modules",
+ "common-types",
+ "host",
+ "multiversx-sc",
+ "multiversx-sc-scenario",
+ "num-bigint",
+]
+
+[[package]]
+name = "channel-meta"
+version = "0.0.0"
+dependencies = [
+ "channel",
+ "multiversx-sc-meta-lib",
+]
+
+[[package]]
 name = "clap"
 version = "4.5.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
