@@ -12,6 +12,7 @@ multiversx_sc::imports!();
 
 static UNEXPECTED_PACKET_DEST_ERR_MSG: &[u8] = b"Unexpected packet destination";
 static PACKET_COMM_MISMATCH_ERR_MSG: &[u8] = b"Packet commitment mismatch";
+pub static UNEXPECTED_CHANNEL_STATE_ERR_MSG: &[u8] = b"Unexpected channel state";
 
 #[multiversx_sc::module]
 pub trait PacketTimeoutModule:
@@ -103,7 +104,7 @@ pub trait PacketTimeoutModule:
     fn check_expected_args(&self, packet: &Packet<Self::Api>, channel: &channel::Data<Self::Api>) {
         require!(
             matches!(channel.state, channel::State::Open),
-            "Unexpected channel state"
+            UNEXPECTED_CHANNEL_STATE_ERR_MSG
         );
         require!(
             packet.dest_port == channel.counterparty.port_id,
@@ -127,7 +128,7 @@ pub trait PacketTimeoutModule:
         }
 
         let timestamp_at_height: Timestamp = self
-            .generic_client_proxy_impl(client_impl)
+            .generic_client_proxy_impl_timeout(client_impl)
             .get_timestamp_at_height(client_id, proof_height)
             .execute_on_dest_context();
         require!(
@@ -172,7 +173,7 @@ pub trait PacketTimeoutModule:
         let caller = self.blockchain().get_caller();
         let ibc_module = self.lookup_module_by_channel(&packet.source_port, &packet.source_channel);
         let _: () = self
-            .ibc_module_proxy_impl(ibc_module)
+            .ibc_module_proxy_impl_timeout(ibc_module)
             .on_timeout_packet(packet.clone(), caller)
             .execute_on_dest_context();
 
@@ -180,13 +181,13 @@ pub trait PacketTimeoutModule:
     }
 
     #[proxy]
-    fn generic_client_proxy_impl(
+    fn generic_client_proxy_impl_timeout(
         &self,
         sc_address: ManagedAddress,
     ) -> client_interface::generic_client_proxy::GenericClientProxy<Self::Api>;
 
     #[proxy]
-    fn ibc_module_proxy_impl(
+    fn ibc_module_proxy_impl_timeout(
         &self,
         sc_address: ManagedAddress,
     ) -> ibc_module_interface::ibc_module_proxy::IbcModuleProxy<Self::Api>;

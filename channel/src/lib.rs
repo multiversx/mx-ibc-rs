@@ -6,6 +6,7 @@ pub mod channel_libs;
 pub mod interfaces;
 pub mod membership;
 pub mod packet_timeout;
+pub mod send_packet;
 
 #[multiversx_sc::contract]
 pub trait Channel:
@@ -13,6 +14,7 @@ pub trait Channel:
     + channel_libs::events::EventsModule
     + packet_timeout::PacketTimeoutModule
     + membership::MembershipModule
+    + send_packet::SendPacketModule
     + host::commitment::CommitmentModule
     + host::host_config::HostConfigModule
     + host::host_views::HostViewsModule
