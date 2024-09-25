@@ -58,7 +58,7 @@ pub trait SendModule:
         self.channel_info(&src_port, &src_channel).set(channel_info);
 
         let commitment_hash = self.get_packet_commitment_key(&src_port, &src_channel, packet_seq);
-        let encoded_data = self.encode_and_hash(timeout_height, timeout_timestamp, &data);
+        let encoded_data = self.encode_and_hash_twice(timeout_height, timeout_timestamp, &data);
         self.commitments(&commitment_hash).set(encoded_data);
 
         self.send_packet_event(SendPacketEventData {
@@ -100,7 +100,7 @@ pub trait SendModule:
         );
     }
 
-    fn encode_and_hash(
+    fn encode_and_hash_twice(
         &self,
         timeout_height: height::Data,
         timeout_timestamp: Timestamp,

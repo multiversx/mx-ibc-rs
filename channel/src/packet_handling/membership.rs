@@ -45,7 +45,7 @@ pub trait MembershipModule:
     ) {
         let packet = timeout_args.get_packet();
         require!(
-            packet.sequence >= timeout_args.get_next_seq_recv(),
+            packet.seq >= timeout_args.get_next_seq_recv(),
             "Packet may already be received"
         );
 
@@ -66,7 +66,7 @@ pub trait MembershipModule:
             .execute_on_dest_context();
         require!(membership_result, "Failed to verify next seq receive");
 
-        self.channel_info(&packet.source_port, &packet.source_channel)
+        self.channel_info(&packet.src_port, &packet.src_channel)
             .update(|channel_info| channel_info.channel.state = channel::State::Closed);
     }
 
@@ -80,7 +80,7 @@ pub trait MembershipModule:
         let path = self.get_packet_receipt_commitment_path(
             &packet.dest_port,
             &packet.dest_channel,
-            packet.sequence,
+            packet.seq,
         );
         let non_membership_args = VerifyNonMembershipArgs {
             client_id: connection_info.client_id.clone(),
@@ -112,8 +112,8 @@ pub trait MembershipModule:
             state: channel::State::Closed,
             ordering: channel.ordering,
             counterparty: channel_counterparty::Data {
-                port_id: args.packet.source_port.clone(),
-                channel_id: args.packet.source_channel.clone(),
+                port_id: args.packet.src_port.clone(),
+                channel_id: args.packet.src_channel.clone(),
             },
             connection_hops: ConnectionHops::from_single_item(
                 connection_info.counterparty.connection_id.clone(),

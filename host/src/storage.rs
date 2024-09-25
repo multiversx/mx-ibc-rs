@@ -21,7 +21,7 @@ pub struct HostInfo {
     pub expected_time_per_block: Timestamp,
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
+#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Clone, Copy)]
 pub struct RecvStartSequence {
     pub seq: Sequence,
     pub prev_seq: Sequence,

@@ -26,7 +26,7 @@ pub trait TimeoutModule:
     #[endpoint(timeoutPacket)]
     fn timeout_packet(&self, args: MsgTimeoutPacket<Self::Api>) {
         let channel_info =
-            self.try_get_channel_info(&args.packet.source_port, &args.packet.source_channel);
+            self.try_get_channel_info(&args.packet.src_port, &args.packet.src_channel);
         let channel = &channel_info.channel;
         self.check_expected_args(&args.packet, channel);
 
@@ -40,9 +40,9 @@ pub trait TimeoutModule:
         );
 
         let commitment_mapper = self.check_and_get_commitment_mapper(
-            &args.packet.source_port,
-            &args.packet.source_channel,
-            args.packet.sequence,
+            &args.packet.src_port,
+            &args.packet.src_channel,
+            args.packet.seq,
         );
         let commitment = commitment_mapper.get();
         let packet_commitment = self.get_packet_commitment(&args.packet);
@@ -66,7 +66,7 @@ pub trait TimeoutModule:
     #[endpoint(timeoutOnClose)]
     fn timeout_on_close(&self, args: MsgTimeoutOnClose<Self::Api>) {
         let channel_info =
-            self.try_get_channel_info(&args.packet.source_port, &args.packet.source_channel);
+            self.try_get_channel_info(&args.packet.src_port, &args.packet.src_channel);
         let channel = &channel_info.channel;
         self.check_expected_args(&args.packet, channel);
 
@@ -74,9 +74,9 @@ pub trait TimeoutModule:
         let client_info = self.try_get_client_info(&connection_info.client_id);
 
         let commitment_mapper = self.check_and_get_commitment_mapper(
-            &args.packet.source_port,
-            &args.packet.source_channel,
-            args.packet.sequence,
+            &args.packet.src_port,
+            &args.packet.src_channel,
+            args.packet.seq,
         );
         let commitment = commitment_mapper.get();
         let packet_commitment = self.get_packet_commitment(&args.packet);
@@ -171,7 +171,7 @@ pub trait TimeoutModule:
 
     fn timeout_packet_final(&self, packet: Packet<Self::Api>) {
         let caller = self.blockchain().get_caller();
-        let ibc_module = self.lookup_module_by_channel(&packet.source_port, &packet.source_channel);
+        let ibc_module = self.lookup_module_by_channel(&packet.src_port, &packet.src_channel);
         let _: () = self
             .ibc_module_proxy_impl_timeout(ibc_module)
             .on_timeout_packet(packet.clone(), caller)

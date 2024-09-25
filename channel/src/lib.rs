@@ -13,6 +13,7 @@ pub trait Channel:
     + packet_handling::timeout::TimeoutModule
     + packet_handling::membership::MembershipModule
     + packet_handling::send::SendModule
+    + packet_handling::receive::ReceiveModule
     + host::commitment::CommitmentModule
     + host::host_config::HostConfigModule
     + host::host_views::HostViewsModule
