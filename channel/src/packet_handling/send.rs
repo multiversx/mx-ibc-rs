@@ -4,15 +4,13 @@ use common_types::{
     ChannelId, Hash, PortId, Sequence, Timestamp,
 };
 
-use crate::{
-    channel_libs::events::SendPacketEventData, interfaces::client_interface,
-    packet_timeout::UNEXPECTED_CHANNEL_STATE_ERR_MSG,
-};
+use super::timeout::UNEXPECTED_CHANNEL_STATE_ERR_MSG;
+use crate::{channel_libs::events::SendPacketEventData, interfaces::client_interface};
 
 multiversx_sc::imports!();
 
 #[multiversx_sc::module]
-pub trait SendPacketModule:
+pub trait SendModule:
     host::module_manager::ModuleManagerModule
     + host::storage::StorageModule
     + common_modules::utils::UtilsModule
@@ -25,7 +23,7 @@ pub trait SendPacketModule:
     ///
     /// An error is returned if one occurs.
     ///
-    /// Also, `timeoutTimestamp` is given in nanoseconds since unix epoch.
+    /// Also, `timeout_timestamp` is given in nanoseconds since unix epoch.
     #[endpoint(sendPacket)]
     fn send_packet(
         &self,

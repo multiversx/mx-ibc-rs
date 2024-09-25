@@ -15,12 +15,12 @@ static PACKET_COMM_MISMATCH_ERR_MSG: &[u8] = b"Packet commitment mismatch";
 pub static UNEXPECTED_CHANNEL_STATE_ERR_MSG: &[u8] = b"Unexpected channel state";
 
 #[multiversx_sc::module]
-pub trait PacketTimeoutModule:
+pub trait TimeoutModule:
     host::module_manager::ModuleManagerModule
     + host::storage::StorageModule
     + host::commitment::CommitmentModule
     + common_modules::utils::UtilsModule
-    + crate::membership::MembershipModule
+    + super::membership::MembershipModule
     + crate::channel_libs::events::EventsModule
 {
     #[endpoint(timeoutPacket)]
