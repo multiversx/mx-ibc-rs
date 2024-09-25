@@ -2,7 +2,7 @@ use client_common::{VerifyMembershipArgs, VerifyNonMembershipArgs};
 use common_types::{
     channel_types::{channel, channel_counterparty},
     connection_types::connection_end,
-    ConnectionHops, Timestamp,
+    ConnectionHops,
 };
 
 use crate::{
@@ -141,20 +141,6 @@ pub trait MembershipModule:
             .verify_membership(membership_args)
             .execute_on_dest_context();
         require!(membership_result, "Failed to verify channel state");
-    }
-
-    /// calculates the block delay based on the expected time per block
-    fn calculate_block_delay(&self, time_delay: Timestamp) -> Timestamp {
-        if time_delay == 0 {
-            return 0;
-        }
-
-        let host_info = self.host_info().get();
-        if host_info.expected_time_per_block == 0 {
-            return 0;
-        }
-
-        (time_delay + host_info.expected_time_per_block - 1) / host_info.expected_time_per_block
     }
 
     #[proxy]

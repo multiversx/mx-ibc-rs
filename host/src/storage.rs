@@ -47,6 +47,20 @@ pub trait StorageModule {
         self.commitments(commitment_hash).get()
     }
 
+    /// calculates the block delay based on the expected time per block
+    fn calculate_block_delay(&self, time_delay: Timestamp) -> Timestamp {
+        if time_delay == 0 {
+            return 0;
+        }
+
+        let host_info = self.host_info().get();
+        if host_info.expected_time_per_block == 0 {
+            return 0;
+        }
+
+        (time_delay + host_info.expected_time_per_block - 1) / host_info.expected_time_per_block
+    }
+
     fn get_next_client_seq(&self) -> Sequence {
         self.host_info().update(|host_info| {
             let ret_val = host_info.next_client_seq;
