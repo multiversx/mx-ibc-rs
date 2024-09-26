@@ -83,14 +83,6 @@ pub mod height {
     }
 
     impl Data {
-        #[inline]
-        pub fn new(revision_number: u64, revision_height: u64) -> Self {
-            Self {
-                revision_number,
-                revision_height,
-            }
-        }
-
         pub fn is_zero(&self) -> bool {
             self.revision_number == 0 && self.revision_height == 0
         }
@@ -109,6 +101,15 @@ pub mod height {
         use core::cmp::Ordering;
 
         use super::*;
+
+        impl Data {
+            fn new(revision_number: u64, revision_height: u64) -> Self {
+                Self {
+                    revision_number,
+                    revision_height,
+                }
+            }
+        }
 
         #[test]
         fn partial_ord_test() {
