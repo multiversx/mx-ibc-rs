@@ -4,6 +4,6 @@ multiversx_sc::imports!();
 
 #[multiversx_sc::module]
 pub trait EventsModule {
-    #[event("generatedConnectionIdentifier")]
+    #[event("generatedConnectionIdEvent")]
     fn generated_connection_id_event(&self, connection_id: &ConnectionId<Self::Api>);
 }

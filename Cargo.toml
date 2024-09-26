@@ -10,6 +10,8 @@ members = [
     "client-impls/mock/meta",
     "client-impls/qbft",
     "client-impls/qbft/meta",
+    "channel",
+    "channel/meta",
     "connection",
     "connection/meta",
     "host",

@@ -1,8 +1,11 @@
-use common_types::Timestamp;
+use common_types::{channel_types::channel, Hash, Timestamp, HASH_LENGTH};
 
 multiversx_sc::imports!();
 
 const NANO_SECONDS_MULT: u64 = 1_000_000_000;
+const EMPTY_HASH: &[u8; HASH_LENGTH] = &[0u8; HASH_LENGTH];
+
+pub static UNEXPECTED_CHANNEL_STATE_ERR_MSG: &[u8] = b"Unexpected channel state";
 
 #[multiversx_sc::module]
 pub trait UtilsModule {
@@ -11,6 +14,13 @@ pub trait UtilsModule {
         require!(
             address != &own_sc_address && !address.is_zero(),
             "Invalid address"
+        );
+    }
+
+    fn require_state_open(&self, state: channel::State) {
+        require!(
+            matches!(state, channel::State::Open),
+            UNEXPECTED_CHANNEL_STATE_ERR_MSG
         );
     }
 
@@ -26,5 +36,9 @@ pub trait UtilsModule {
         let _ = value.top_encode(&mut encoded_value);
 
         encoded_value
+    }
+
+    fn is_empty_hash(&self, hash: &Hash<Self::Api>) -> bool {
+        hash == &Hash::new_from_bytes(EMPTY_HASH)
     }
 }

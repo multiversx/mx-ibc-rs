@@ -1,21 +1,23 @@
-use common_types::{connection_types::version, Feature, FeatureVec, VersionVec};
+use common_types::{
+    channel_types::channel::{ORDERED, UNORDERED},
+    connection_types::version,
+    Feature, FeatureId, FeatureVec, VersionVec,
+};
 
 multiversx_sc::imports!();
 
 static IBC_VERSION_IDENTIFIER: &[u8] = b"1";
-static ORDER_ORDERED: &[u8] = b"ORDER_ORDERED";
-static ORDER_UNORDERED: &[u8] = b"ORDER_UNORDERED";
 
 #[multiversx_sc::module]
 pub trait ConnectionLibModule {
     /// returns the latest supported version of IBC used in connection version negotiation
     fn default_ibc_version(&self) -> version::Data<Self::Api> {
         let mut version = version::Data {
-            identifier: ManagedBuffer::from(IBC_VERSION_IDENTIFIER),
-            features: ManagedVec::new(),
+            identifier: FeatureId::from(IBC_VERSION_IDENTIFIER),
+            features: FeatureVec::new(),
         };
-        version.features.push(ManagedBuffer::from(ORDER_ORDERED));
-        version.features.push(ManagedBuffer::from(ORDER_UNORDERED));
+        version.features.push(Feature::from(ORDERED));
+        version.features.push(Feature::from(UNORDERED));
 
         version
     }

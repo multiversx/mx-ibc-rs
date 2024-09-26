@@ -1,6 +1,6 @@
 #![no_std]
 
-use common_types::{channel_types::height, ClientId, Hash, Timestamp};
+use common_types::{channel_types::height, ClientId, Hash, Path, Timestamp};
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
@@ -33,7 +33,7 @@ pub struct VerifyMembershipArgs<M: ManagedTypeApi> {
     pub delay_block_period: u64,
     pub proof: Hash<M>,
     pub prefix: ManagedBuffer<M>,
-    pub path: ManagedBuffer<M>,
+    pub path: Path<M>,
     pub value: ManagedBuffer<M>,
 }
 
@@ -45,7 +45,7 @@ pub struct VerifyNonMembershipArgs<M: ManagedTypeApi> {
     pub delay_block_period: u64,
     pub proof: Hash<M>,
     pub prefix: ManagedBuffer<M>,
-    pub path: ManagedBuffer<M>,
+    pub path: Path<M>,
 }
 
 #[multiversx_sc::module]

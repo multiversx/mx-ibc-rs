@@ -23,10 +23,8 @@ pub trait HostViewsModule:
 
     #[view(checkAndGetClient)]
     fn check_and_get_client(&self, client_id: &ClientId<Self::Api>) -> ManagedAddress {
-        let mapper = self.client_info(client_id);
-        require!(!mapper.is_empty(), "Client not found");
+        let client_info = self.try_get_client_info(client_id);
 
-        let client_info = mapper.get();
         client_info.client_impl
     }
 }

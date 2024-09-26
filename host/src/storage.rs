@@ -21,7 +21,7 @@ pub struct HostInfo {
     pub expected_time_per_block: Timestamp,
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
+#[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Clone, Copy)]
 pub struct RecvStartSequence {
     pub seq: Sequence,
     pub prev_seq: Sequence,
@@ -45,6 +45,20 @@ pub trait StorageModule {
     #[view(getCommitment)]
     fn get_commitment(&self, commitment_hash: &Hash<Self::Api>) -> Hash<Self::Api> {
         self.commitments(commitment_hash).get()
+    }
+
+    /// calculates the block delay based on the expected time per block
+    fn calculate_block_delay(&self, time_delay: Timestamp) -> Timestamp {
+        if time_delay == 0 {
+            return 0;
+        }
+
+        let host_info = self.host_info().get();
+        if host_info.expected_time_per_block == 0 {
+            return 0;
+        }
+
+        (time_delay + host_info.expected_time_per_block - 1) / host_info.expected_time_per_block
     }
 
     fn get_next_client_seq(&self) -> Sequence {
@@ -74,8 +88,36 @@ pub trait StorageModule {
         })
     }
 
+    fn try_get_client_info(&self, client_id: &ClientId<Self::Api>) -> ClientInfo<Self::Api> {
+        let mapper = self.client_info(client_id);
+        require!(!mapper.is_empty(), "Client not found");
+
+        mapper.get()
+    }
+
+    fn try_get_connection_info(
+        &self,
+        connection_id: &ConnectionId<Self::Api>,
+    ) -> connection_end::Data<Self::Api> {
+        let mapper = self.connection_info(connection_id);
+        require!(!mapper.is_empty(), "Connection not found");
+
+        mapper.get()
+    }
+
+    fn try_get_channel_info(
+        &self,
+        port_id: &PortId<Self::Api>,
+        channel_id: &ChannelId<Self::Api>,
+    ) -> ChannelInfo<Self::Api> {
+        let mapper = self.channel_info(port_id, channel_id);
+        require!(!mapper.is_empty(), "Channel not found");
+
+        mapper.get()
+    }
+
     #[storage_mapper("commitments")]
-    fn commitments(&self, commitment_hash: &Hash<Self::Api>) -> SingleValueMapper<Hash<Self::Api>>;
+    fn commitments(&self, comm_key: &Hash<Self::Api>) -> SingleValueMapper<Hash<Self::Api>>;
 
     #[storage_mapper("clientReg")]
     fn client_registry(
@@ -111,6 +153,7 @@ pub trait StorageModule {
     #[storage_mapper("channelInfo")]
     fn channel_info(
         &self,
+        port_id: &PortId<Self::Api>,
         channel_id: &ChannelId<Self::Api>,
     ) -> SingleValueMapper<ChannelInfo<Self::Api>>;
 }

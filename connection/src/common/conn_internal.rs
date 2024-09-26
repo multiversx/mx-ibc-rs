@@ -2,7 +2,7 @@ use client_common::VerifyMembershipArgs;
 use common_types::{
     channel_types::height,
     connection_types::{connection_end, version},
-    ConnectionId, Hash, VersionVec,
+    ConnectionId, Hash, Path, VersionVec,
 };
 
 multiversx_sc::imports!();
@@ -10,7 +10,7 @@ multiversx_sc::imports!();
 pub struct VerifyClientStateArgs<M: ManagedTypeApi> {
     pub connection_info: connection_end::Data<M>,
     pub height: height::Data,
-    pub path: ManagedBuffer<M>,
+    pub path: Path<M>,
     pub proof: Hash<M>,
     pub client_state_bytes: ManagedBuffer<M>,
 }
