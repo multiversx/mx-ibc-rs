@@ -119,7 +119,7 @@ pub mod ibc_module_proxy {
 
         /// Is called when a packet sent by this module has been acknowledged.
         #[endpoint(onAcknowledgementPacket)]
-        fn on_acknowledgement_packet(
+        fn on_ack_packet(
             &self,
             packet: Packet<Self::Api>,
             ack: ManagedBuffer,

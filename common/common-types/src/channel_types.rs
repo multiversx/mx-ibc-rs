@@ -7,7 +7,7 @@ pub mod channel {
     pub static ORDERED: &[u8] = b"ORDER_ORDERED";
     pub static UNORDERED: &[u8] = b"ORDER_UNORDERED";
 
-    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
+    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Clone, Copy)]
     pub enum State {
         UninitializedUnspecified,
         Init,

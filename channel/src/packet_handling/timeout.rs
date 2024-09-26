@@ -6,13 +6,10 @@ use common_types::{
 use crate::{
     channel_libs::packet_types::{MsgTimeoutOnClose, MsgTimeoutPacket, Packet},
     interfaces::{client_interface, ibc_module_interface},
+    packet_handling::errors::{PACKET_COMM_MISMATCH_ERR_MSG, UNEXPECTED_PACKET_DEST_ERR_MSG},
 };
 
 multiversx_sc::imports!();
-
-static UNEXPECTED_PACKET_DEST_ERR_MSG: &[u8] = b"Unexpected packet destination";
-static PACKET_COMM_MISMATCH_ERR_MSG: &[u8] = b"Packet commitment mismatch";
-pub static UNEXPECTED_CHANNEL_STATE_ERR_MSG: &[u8] = b"Unexpected channel state";
 
 #[multiversx_sc::module]
 pub trait TimeoutModule:
@@ -102,10 +99,7 @@ pub trait TimeoutModule:
     }
 
     fn check_expected_args(&self, packet: &Packet<Self::Api>, channel: &channel::Data<Self::Api>) {
-        require!(
-            matches!(channel.state, channel::State::Open),
-            UNEXPECTED_CHANNEL_STATE_ERR_MSG
-        );
+        self.require_state_open(channel.state);
         require!(
             packet.dest_port == channel.counterparty.port_id,
             UNEXPECTED_PACKET_DEST_ERR_MSG

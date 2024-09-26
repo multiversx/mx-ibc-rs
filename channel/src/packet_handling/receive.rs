@@ -1,29 +1,25 @@
 use client_common::VerifyMembershipArgs;
+use common_modules::utils::UNEXPECTED_CHANNEL_STATE_ERR_MSG;
 use common_types::{
     channel_types::{channel, height},
     connection_types::connection_end,
-    Hash, Sequence, Timestamp,
+    Hash, Path, Sequence,
 };
 use host::storage::ChannelInfo;
 
 use crate::{
     channel_libs::packet_types::{MsgPacketRecv, Packet, PacketReceipt},
     interfaces::{client_interface, ibc_module_interface},
+    packet_handling::errors::{PACKET_ALREADY_PROCESSED_ERR_MSG, UNEXPECTED_PACKET_SOURCE_ERR_MSG},
 };
-
-use super::timeout::UNEXPECTED_CHANNEL_STATE_ERR_MSG;
 
 multiversx_sc::imports!();
 
-static UNEXPECTED_PACKET_SOURCE_ERR_MSG: &[u8] = b"Unexpected packet source";
-static PACKET_ALREADY_PROCESSED_ERR_MSG: &[u8] =
-    b"Channel packet already processed in prev upgrade";
-
-pub struct VerifyPacketCommitmentArgs<'a, M: ManagedTypeApi> {
+pub struct VerifyPacketCommitmentReceiveArgs<'a, M: ManagedTypeApi> {
     pub connection_info: &'a connection_end::Data<M>,
     pub height: height::Data,
     pub proof: Hash<M>,
-    pub path: ManagedBuffer<M>,
+    pub path: Path<M>,
     pub commitment: Hash<M>,
 }
 
@@ -35,6 +31,8 @@ pub trait ReceiveModule:
     + host::commitment::CommitmentModule
     + host::host_views::HostViewsModule
     + crate::channel_libs::events::EventsModule
+    + super::ack::AckModule
+    + super::encoding::EncodingModule
 {
     /// Is called by a module in order to receive & process an IBC packet sent on the corresponding channel end on the counterparty chain.
     #[endpoint(recvPacket)]
@@ -53,7 +51,7 @@ pub trait ReceiveModule:
         self.verify_valid_packet(&args.packet, channel);
 
         let connection_info = self.try_get_connection_info(&channel.connection_hops.get(0));
-        self.verify_packet_commitment(VerifyPacketCommitmentArgs {
+        self.verify_packet_commitment_receive(VerifyPacketCommitmentReceiveArgs {
             connection_info: &connection_info,
             height: args.proof_height,
             proof: args.proof,
@@ -79,14 +77,14 @@ pub trait ReceiveModule:
             .on_recv_packet(args.packet.clone(), caller)
             .execute_on_dest_context();
 
-        // TODO: Write ack
-        /*
-        if (acknowledgement.length > 0) {
-            _writeAcknowledgement(
-                msg_.packet.destinationPort, msg_.packet.destinationChannel, msg_.packet.sequence, acknowledgement
+        if !ack.is_empty() {
+            self.write_ack(
+                &args.packet.dest_port,
+                &args.packet.dest_channel,
+                args.packet.seq,
+                &ack,
             );
         }
-         */
 
         self.receive_packet_event(&args.packet);
     }
@@ -134,7 +132,7 @@ pub trait ReceiveModule:
         );
     }
 
-    fn verify_packet_commitment(&self, args: VerifyPacketCommitmentArgs<Self::Api>) {
+    fn verify_packet_commitment_receive(&self, args: VerifyPacketCommitmentReceiveArgs<Self::Api>) {
         let client = self.check_and_get_client(&args.connection_info.client_id);
         let membership_args = VerifyMembershipArgs {
             client_id: args.connection_info.client_id.clone(),
@@ -154,28 +152,6 @@ pub trait ReceiveModule:
             membership_result,
             "Failed to verify received packet commitment"
         );
-    }
-
-    fn encode_and_hash(
-        &self,
-        timeout_height: height::Data,
-        timeout_timestamp: Timestamp,
-        data: &ManagedBuffer,
-    ) -> Hash<Self::Api> {
-        let hashed_data = self.crypto().sha256(data);
-
-        let mut encoded_buffer = ManagedBuffer::new();
-        let encoded_timestamp = self.encode_to_buffer(&timeout_timestamp);
-        let encoded_rev_number = self.encode_to_buffer(&timeout_height.revision_number);
-        let encoded_rev_height = self.encode_to_buffer(&timeout_height.revision_height);
-        let encoded_hashed_data = self.encode_to_buffer(&hashed_data);
-
-        encoded_buffer = encoded_buffer.concat(encoded_timestamp);
-        encoded_buffer = encoded_buffer.concat(encoded_rev_number);
-        encoded_buffer = encoded_buffer.concat(encoded_rev_height);
-        encoded_buffer = encoded_buffer.concat(encoded_hashed_data);
-
-        self.crypto().sha256(&encoded_buffer)
     }
 
     fn receive_packet_by_channel_order(

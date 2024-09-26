@@ -6,9 +6,9 @@
 
 // Init:                                 1
 // Upgrade:                              1
-// Endpoints:                           11
+// Endpoints:                           13
 // Async Callback (empty):               1
-// Total number of exported functions:  14
+// Total number of exported functions:  16
 
 #![no_std]
 
@@ -24,6 +24,8 @@ multiversx_sc_wasm_adapter::endpoints! {
         timeoutOnClose => timeout_on_close
         sendPacket => send_packet
         recvPacket => recieve_packet
+        writeAcknowledgement => write_ack_endpoint
+        acknowledgePacket => ack_packet
         setExpectedTimePerBlock => set_expected_time_per_block
         registerClient => register_client
         bindPort => bind_port

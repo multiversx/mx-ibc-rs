@@ -10,6 +10,8 @@ use crate::{
     interfaces::client_interface,
 };
 
+use super::errors::UNKNOW_CHANNEL_ORDER_ERR_MSG;
+
 multiversx_sc::imports!();
 
 #[multiversx_sc::module]
@@ -33,7 +35,7 @@ pub trait MembershipModule:
             channel::Order::Unordered => {
                 self.check_channel_unordered_membership(client_impl, connection_info, timeout_args)
             }
-            channel::Order::NoneUnspecified => sc_panic!("Unknown channel order"),
+            channel::Order::NoneUnspecified => sc_panic!(UNKNOW_CHANNEL_ORDER_ERR_MSG),
         };
     }
 

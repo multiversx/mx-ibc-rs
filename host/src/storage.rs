@@ -117,7 +117,7 @@ pub trait StorageModule {
     }
 
     #[storage_mapper("commitments")]
-    fn commitments(&self, commitment_hash: &Hash<Self::Api>) -> SingleValueMapper<Hash<Self::Api>>;
+    fn commitments(&self, comm_key: &Hash<Self::Api>) -> SingleValueMapper<Hash<Self::Api>>;
 
     #[storage_mapper("clientReg")]
     fn client_registry(

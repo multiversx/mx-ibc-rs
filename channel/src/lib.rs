@@ -10,10 +10,12 @@ pub mod packet_handling;
 pub trait Channel:
     channel_libs::ibc_channel_lib::IbcChannelLibModule
     + channel_libs::events::EventsModule
-    + packet_handling::timeout::TimeoutModule
     + packet_handling::membership::MembershipModule
+    + packet_handling::timeout::TimeoutModule
     + packet_handling::send::SendModule
     + packet_handling::receive::ReceiveModule
+    + packet_handling::ack::AckModule
+    + packet_handling::encoding::EncodingModule
     + host::commitment::CommitmentModule
     + host::host_config::HostConfigModule
     + host::host_views::HostViewsModule

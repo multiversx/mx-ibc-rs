@@ -1,10 +1,6 @@
 use client_common::{ClientStatus, GetLatestInfoResultType};
-use common_types::{
-    channel_types::{channel, height},
-    ChannelId, Hash, PortId, Sequence, Timestamp,
-};
+use common_types::{channel_types::height, ChannelId, PortId, Sequence, Timestamp};
 
-use super::timeout::UNEXPECTED_CHANNEL_STATE_ERR_MSG;
 use crate::{channel_libs::events::SendPacketEventData, interfaces::client_interface};
 
 multiversx_sc::imports!();
@@ -16,6 +12,7 @@ pub trait SendModule:
     + common_modules::utils::UtilsModule
     + host::commitment::CommitmentModule
     + crate::channel_libs::events::EventsModule
+    + super::encoding::EncodingModule
 {
     /// Is called by a module in order to send an IBC packet on a channel.
     ///
@@ -38,10 +35,7 @@ pub trait SendModule:
 
         let mut channel_info = self.try_get_channel_info(&src_port, &src_channel);
         let channel = &channel_info.channel;
-        require!(
-            matches!(channel.state, channel::State::Open),
-            UNEXPECTED_CHANNEL_STATE_ERR_MSG
-        );
+        self.require_state_open(channel.state);
         require!(
             !timeout_height.is_zero() || timeout_timestamp != 0,
             "Zero packet timeout"
@@ -62,7 +56,7 @@ pub trait SendModule:
         self.commitments(&commitment_hash).set(encoded_data);
 
         self.send_packet_event(SendPacketEventData {
-            sequence: packet_seq,
+            seq: packet_seq,
             source_port: &src_port,
             source_channel: &src_channel,
             timeout_height,
@@ -98,30 +92,6 @@ pub trait SendModule:
             timeout_timestamp == 0 || latest_info.latest_timestamp < timeout_timestamp,
             "Past packet timeout timestamp"
         );
-    }
-
-    fn encode_and_hash_twice(
-        &self,
-        timeout_height: height::Data,
-        timeout_timestamp: Timestamp,
-        data: &ManagedBuffer,
-    ) -> Hash<Self::Api> {
-        let hashed_data = self.crypto().sha256(data);
-
-        let mut encoded_buffer = ManagedBuffer::new();
-        let encoded_timestamp = self.encode_to_buffer(&timeout_timestamp);
-        let encoded_rev_number = self.encode_to_buffer(&timeout_height.revision_number);
-        let encoded_rev_height = self.encode_to_buffer(&timeout_height.revision_height);
-        let encoded_hashed_data = self.encode_to_buffer(&hashed_data);
-
-        encoded_buffer = encoded_buffer.concat(encoded_timestamp);
-        encoded_buffer = encoded_buffer.concat(encoded_rev_number);
-        encoded_buffer = encoded_buffer.concat(encoded_rev_height);
-        encoded_buffer = encoded_buffer.concat(encoded_hashed_data);
-
-        let hashed_everything = self.crypto().sha256(&encoded_buffer);
-        self.crypto()
-            .keccak256(hashed_everything.as_managed_buffer())
     }
 
     #[proxy]

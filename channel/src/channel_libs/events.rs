@@ -7,7 +7,7 @@ multiversx_sc::derive_imports!();
 
 #[derive(TypeAbi, TopEncode)]
 pub struct SendPacketEventData<'a, M: ManagedTypeApi> {
-    pub sequence: Sequence,
+    pub seq: Sequence,
     pub source_port: &'a PortId<M>,
     pub source_channel: &'a ChannelId<M>,
     pub timeout_height: height::Data,
@@ -25,7 +25,7 @@ pub trait EventsModule {
         &self,
         #[indexed] dest_port_id: &PortId<Self::Api>,
         #[indexed] dest_channel: &ChannelId<Self::Api>,
-        #[indexed] sequence: Sequence,
+        #[indexed] seq: Sequence,
         ack: &ManagedBuffer,
     );
 
