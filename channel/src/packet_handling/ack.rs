@@ -113,7 +113,7 @@ pub trait AckModule:
         let second_hash = self.crypto().keccak256(first_hash.as_managed_buffer());
         comm_mapper.set(second_hash);
 
-        self.write_ack_event(&dest_port, &dest_channel, seq, &ack);
+        self.write_ack_event(dest_port, dest_channel, seq, ack);
     }
 
     fn verify_packet_ack(&self, args: VerifyPacketAckArgs<Self::Api>) {
