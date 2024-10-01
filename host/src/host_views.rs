@@ -1,4 +1,4 @@
-use common_types::{ClientId, Timestamp};
+use common_types::{ClientId, UnixTimestamp};
 
 multiversx_sc::imports!();
 
@@ -10,7 +10,7 @@ pub trait HostViewsModule:
 {
     /// Returns the current timestamp (Unix time in nanoseconds) of the host chain.
     #[view(getHostTimestamp)]
-    fn get_host_timestamp(&self) -> Timestamp {
+    fn get_host_timestamp(&self) -> UnixTimestamp {
         let block_timestamp = self.blockchain().get_block_timestamp();
 
         self.checked_timestamp_to_unix_mul(block_timestamp)

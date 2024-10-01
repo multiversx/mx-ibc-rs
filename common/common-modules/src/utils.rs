@@ -1,4 +1,4 @@
-use common_types::{channel_types::channel, Hash, Timestamp, HASH_LENGTH};
+use common_types::{channel_types::channel, Hash, UnixTimestamp, HASH_LENGTH};
 
 multiversx_sc::imports!();
 
@@ -24,7 +24,7 @@ pub trait UtilsModule {
         );
     }
 
-    fn checked_timestamp_to_unix_mul(&self, timestamp: Timestamp) -> Timestamp {
+    fn checked_timestamp_to_unix_mul(&self, timestamp: u64) -> UnixTimestamp {
         match timestamp.checked_mul(NANO_SECONDS_MULT) {
             Some(result) => result,
             None => sc_panic!("Overlow!!!"),

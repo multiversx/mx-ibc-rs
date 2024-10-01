@@ -1,4 +1,4 @@
-use common_types::{ClientType, PortId, Timestamp};
+use common_types::{ClientType, PortId, UnixTimestamp};
 
 use crate::storage::HostInfo;
 
@@ -14,7 +14,7 @@ pub trait HostConfigModule:
 {
     #[only_owner]
     #[endpoint(setExpectedTimePerBlock)]
-    fn set_expected_time_per_block(&self, exp_time_per_block: Timestamp) {
+    fn set_expected_time_per_block(&self, exp_time_per_block: UnixTimestamp) {
         let mapper = self.host_info();
         if !mapper.is_empty() {
             mapper.update(|host_info| host_info.expected_time_per_block = exp_time_per_block);

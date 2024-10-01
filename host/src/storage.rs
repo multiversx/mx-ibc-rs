@@ -1,7 +1,7 @@
 use common_types::{
     channel_types::{channel, upgrade},
     connection_types::connection_end,
-    ChannelId, ClientId, ClientType, ConnectionId, Hash, PortId, Sequence, Timestamp,
+    ChannelId, ClientId, ClientType, ConnectionId, Hash, PortId, Sequence, UnixTimestamp,
 };
 
 multiversx_sc::imports!();
@@ -18,7 +18,7 @@ pub struct HostInfo {
     pub next_client_seq: Sequence,
     pub next_connection_seq: Sequence,
     pub next_channel_seq: Sequence,
-    pub expected_time_per_block: Timestamp,
+    pub expected_time_per_block: UnixTimestamp,
 }
 
 #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Clone, Copy)]
@@ -48,7 +48,7 @@ pub trait StorageModule {
     }
 
     /// calculates the block delay based on the expected time per block
-    fn calculate_block_delay(&self, time_delay: Timestamp) -> Timestamp {
+    fn calculate_block_delay(&self, time_delay: UnixTimestamp) -> UnixTimestamp {
         if time_delay == 0 {
             return 0;
         }
