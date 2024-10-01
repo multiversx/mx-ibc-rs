@@ -1,5 +1,5 @@
 [package]
-name = "ibc"
+name = "host"
 version = "0.0.0"
 authors = ["you"]
 edition = "2021"
@@ -9,10 +9,16 @@ publish = false
 path = "src/lib.rs"
 
 [dependencies.multiversx-sc]
-version = "=0.52.3"
+version = "=0.53.0"
+
+[dependencies.common-types]
+path = "../common/common-types"
+
+[dependencies.common-modules]
+path = "../common/common-modules"
 
 [dev-dependencies]
 num-bigint = "0.4"
 
 [dev-dependencies.multiversx-sc-scenario]
-version = "=0.52.3"
+version = "=0.53.0"
