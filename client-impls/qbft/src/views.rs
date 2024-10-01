@@ -1,5 +1,5 @@
 use client_common::{ClientStatus, GetLatestInfoResultType};
-use common_types::{channel_types::height, ClientId, Timestamp};
+use common_types::{channel_types::height, ClientId, UnixTimestamp};
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
@@ -18,7 +18,7 @@ pub trait ViewsModule:
         &self,
         client_id: ClientId<Self::Api>,
         height: height::Data,
-    ) -> Timestamp {
+    ) -> UnixTimestamp {
         let mapper = self.consensus_states(&client_id, &height.to_biguint_concat());
         require!(!mapper.is_empty(), "Consensus state not found");
 

@@ -1,5 +1,5 @@
 use client_common::{ClientStatus, GetLatestInfoResultType};
-use common_types::{channel_types::height, ChannelId, PortId, Sequence, Timestamp};
+use common_types::{channel_types::height, ChannelId, PortId, Sequence, UnixTimestamp};
 
 use crate::{channel_libs::events::SendPacketEventData, interfaces::client_interface};
 
@@ -27,7 +27,7 @@ pub trait SendModule:
         src_port: PortId<Self::Api>,
         src_channel: ChannelId<Self::Api>,
         timeout_height: height::Data,
-        timeout_timestamp: Timestamp,
+        timeout_timestamp: UnixTimestamp,
         data: ManagedBuffer,
     ) -> Sequence {
         let caller = self.blockchain().get_caller();
@@ -71,7 +71,7 @@ pub trait SendModule:
         &self,
         channel_id: &ChannelId<Self::Api>,
         timeout_height: height::Data,
-        timeout_timestamp: Timestamp,
+        timeout_timestamp: UnixTimestamp,
     ) {
         let connection_info = self.try_get_connection_info(channel_id);
         let client_info = self.try_get_client_info(&connection_info.client_id);

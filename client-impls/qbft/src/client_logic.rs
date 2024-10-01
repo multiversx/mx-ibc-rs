@@ -1,5 +1,5 @@
 use crate::qbft_types::{client_state, consensus_state, header};
-use common_types::{channel_types::height, ClientId, Hash, Timestamp};
+use common_types::{channel_types::height, ClientId, Hash, UnixTimestamp};
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
@@ -14,7 +14,7 @@ pub struct ParsedBesuHeader<M: ManagedTypeApi> {
     pub base: header::Data<M>,
     pub height: height::Data,
     pub state_root: Hash<M>,
-    pub time: Timestamp,
+    pub time: UnixTimestamp,
     pub validators: ManagedVec<M, ManagedAddress<M>>, // TODO: Was RLPReader.RLPItem[]. Why?
 }
 

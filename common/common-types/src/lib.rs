@@ -10,7 +10,7 @@ pub mod connection_types;
 pub const HASH_LENGTH: usize = 32;
 pub type Hash<M> = ManagedByteArray<M, HASH_LENGTH>;
 
-pub type Timestamp = u64;
+pub type UnixTimestamp = u64;
 pub type Sequence = u64;
 
 pub type ChainId<M> = ManagedByteArray<M, 32>;

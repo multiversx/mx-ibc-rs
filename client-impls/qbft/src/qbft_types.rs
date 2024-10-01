@@ -15,14 +15,14 @@ pub mod client_state {
 }
 
 pub mod consensus_state {
-    use common_types::{Hash, Timestamp};
+    use common_types::{Hash, UnixTimestamp};
 
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
     #[derive(TypeAbi, TopEncode, TopDecode)]
     pub struct Data<M: ManagedTypeApi> {
-        pub timestamp: Timestamp,
+        pub timestamp: UnixTimestamp,
         pub root: Hash<M>,
         pub validators: ManagedVec<M, ManagedAddress<M>>, // TODO: Why was this bytes[]? Also, might be able to use ArrayVec over ManagedVec
     }

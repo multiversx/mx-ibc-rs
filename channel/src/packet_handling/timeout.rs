@@ -1,6 +1,6 @@
 use common_types::{
     channel_types::{channel, height},
-    ChannelId, ClientId, Hash, PortId, Sequence, Timestamp,
+    ChannelId, ClientId, Hash, PortId, Sequence, UnixTimestamp,
 };
 
 use crate::{
@@ -121,7 +121,7 @@ pub trait TimeoutModule:
             return;
         }
 
-        let timestamp_at_height: Timestamp = self
+        let timestamp_at_height: UnixTimestamp = self
             .generic_client_proxy_impl_timeout(client_impl)
             .get_timestamp_at_height(client_id, proof_height)
             .execute_on_dest_context();

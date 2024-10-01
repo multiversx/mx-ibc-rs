@@ -135,7 +135,7 @@ pub mod height {
 
 pub mod timeout {
     use crate::channel_types::height;
-    use crate::Timestamp;
+    use crate::UnixTimestamp;
 
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
@@ -143,7 +143,7 @@ pub mod timeout {
     #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
     pub struct Data {
         pub height: height::Data,
-        pub timestamp: Timestamp,
+        pub timestamp: UnixTimestamp,
     }
 }
 

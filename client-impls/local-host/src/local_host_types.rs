@@ -18,19 +18,19 @@ pub mod client_state {
 }
 
 pub mod consensus_state {
-    use common_types::Timestamp;
+    use common_types::UnixTimestamp;
 
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
     #[derive(TypeAbi, TopEncode, TopDecode)]
     pub struct Data {
-        pub timestamp: Timestamp,
+        pub timestamp: UnixTimestamp,
     }
 
     impl Data {
         #[inline]
-        pub fn new(timestamp: Timestamp) -> Self {
+        pub fn new(timestamp: UnixTimestamp) -> Self {
             Self { timestamp }
         }
     }

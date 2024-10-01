@@ -1,4 +1,4 @@
-use common_types::{channel_types::height, ChannelId, Hash, PortId, Sequence, Timestamp};
+use common_types::{channel_types::height, ChannelId, Hash, PortId, Sequence, UnixTimestamp};
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
@@ -35,7 +35,7 @@ pub struct Packet<M: ManagedTypeApi> {
     pub dest_channel: ChannelId<M>,
     pub data: ManagedBuffer<M>,
     pub timeout_height: height::Data,
-    pub timeout_timestamp: Timestamp,
+    pub timeout_timestamp: UnixTimestamp,
 }
 
 #[derive(TypeAbi, TopEncode, TopDecode)]

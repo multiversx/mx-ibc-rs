@@ -1,7 +1,7 @@
 use common_types::{
     channel_types::height,
     connection_types::{counterparty, version},
-    ClientId, ConnectionId, Hash, Timestamp, VersionVec,
+    ClientId, ConnectionId, Hash, UnixTimestamp, VersionVec,
 };
 
 multiversx_sc::imports!();
@@ -12,13 +12,13 @@ pub struct MsgConnectionOpenInit<M: ManagedTypeApi> {
     pub client_id: ClientId<M>,
     pub counterparty: counterparty::Data<M>,
     pub version: version::Data<M>,
-    pub delay_period: Timestamp,
+    pub delay_period: UnixTimestamp,
 }
 
 #[derive(TypeAbi, TopDecode)]
 pub struct MsgConnectionOpenTry<M: ManagedTypeApi> {
     pub counterparty: counterparty::Data<M>, // counterpartyConnectionIdentifier, counterpartyPrefix and counterpartyClientIdentifier
-    pub delay_period: Timestamp,
+    pub delay_period: UnixTimestamp,
     pub client_id: ClientId<M>,               // clientID of chainA
     pub client_state_bytes: ManagedBuffer<M>, // clientState that chainA has for chainB
     pub counterparty_versions: VersionVec<M>, // supported versions of chain A

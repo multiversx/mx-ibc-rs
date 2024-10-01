@@ -1,4 +1,4 @@
-use common_types::{channel_types::height, Hash, Timestamp};
+use common_types::{channel_types::height, Hash, UnixTimestamp};
 
 multiversx_sc::imports!();
 
@@ -7,7 +7,7 @@ pub trait EncodingModule: common_modules::utils::UtilsModule {
     fn encode_and_hash(
         &self,
         timeout_height: height::Data,
-        timeout_timestamp: Timestamp,
+        timeout_timestamp: UnixTimestamp,
         data: &ManagedBuffer,
     ) -> Hash<Self::Api> {
         let hashed_data = self.crypto().sha256(data);
@@ -29,7 +29,7 @@ pub trait EncodingModule: common_modules::utils::UtilsModule {
     fn encode_and_hash_twice(
         &self,
         timeout_height: height::Data,
-        timeout_timestamp: Timestamp,
+        timeout_timestamp: UnixTimestamp,
         data: &ManagedBuffer,
     ) -> Hash<Self::Api> {
         let encoded_data = self.encode_and_hash(timeout_height, timeout_timestamp, data);

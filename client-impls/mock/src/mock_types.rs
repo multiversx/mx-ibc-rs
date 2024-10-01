@@ -18,26 +18,26 @@ pub mod client_state {
 }
 
 pub mod consensus_state {
-    use common_types::Timestamp;
+    use common_types::UnixTimestamp;
 
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
     #[derive(TypeAbi, TopEncode, TopDecode)]
     pub struct Data {
-        pub timestamp: Timestamp,
+        pub timestamp: UnixTimestamp,
     }
 
     impl Data {
         #[inline]
-        pub fn new(timestamp: Timestamp) -> Self {
+        pub fn new(timestamp: UnixTimestamp) -> Self {
             Self { timestamp }
         }
     }
 }
 
 pub mod header {
-    use common_types::{channel_types::height, Timestamp};
+    use common_types::{channel_types::height, UnixTimestamp};
 
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
@@ -45,6 +45,6 @@ pub mod header {
     #[derive(TypeAbi, TopEncode, TopDecode)]
     pub struct Data {
         pub height: height::Data,
-        pub timestamp: Timestamp,
+        pub timestamp: UnixTimestamp,
     }
 }

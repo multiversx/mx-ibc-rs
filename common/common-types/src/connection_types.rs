@@ -9,7 +9,7 @@ pub mod merkle_prefix {
 }
 
 pub mod connection_end {
-    use crate::{ClientId, Timestamp, VersionVec};
+    use crate::{ClientId, UnixTimestamp, VersionVec};
 
     use super::counterparty;
 
@@ -30,7 +30,7 @@ pub mod connection_end {
         pub versions: VersionVec<M>,
         pub state: State,
         pub counterparty: counterparty::Data<M>,
-        pub delay_period: Timestamp,
+        pub delay_period: UnixTimestamp,
     }
 }
 

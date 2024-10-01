@@ -1,6 +1,6 @@
 pub mod generic_client_proxy {
     use client_common::{GetLatestInfoResultType, VerifyMembershipArgs, VerifyNonMembershipArgs};
-    use common_types::{channel_types::height, ClientId, Timestamp};
+    use common_types::{channel_types::height, ClientId, UnixTimestamp};
 
     multiversx_sc::imports!();
 
@@ -11,7 +11,7 @@ pub mod generic_client_proxy {
             &self,
             client_id: &ClientId<Self::Api>,
             height: &height::Data,
-        ) -> Timestamp;
+        ) -> UnixTimestamp;
 
         #[view(getLatestInfo)]
         fn get_latest_info(&self, client_id: ClientId<Self::Api>) -> GetLatestInfoResultType;
