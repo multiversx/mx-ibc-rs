@@ -13,7 +13,7 @@ pub struct ClientInfo<M: ManagedTypeApi> {
     pub client_impl: ManagedAddress<M>,
 }
 
-#[derive(TypeAbi, TopEncode, TopDecode, Default)]
+#[derive(TypeAbi, TopEncode, TopDecode, Default, PartialEq, Debug)]
 pub struct HostInfo {
     pub next_client_seq: Sequence,
     pub next_connection_seq: Sequence,
