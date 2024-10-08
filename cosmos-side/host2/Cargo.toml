@@ -19,5 +19,8 @@ cw-storage-plus = "2.0.0"
 [dependencies.common-types2]
 path = "../common/common-types2"
 
+[dependencies.common-modules2]
+path = "../common/common-modules2"
+
 [dev-dependencies]
 cw-multi-test = "2.1.1"
