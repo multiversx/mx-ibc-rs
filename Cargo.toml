@@ -2,18 +2,18 @@
 resolver = "2"
 
 members = [
-    "client",
-    "client/meta",
-    "client-impls/local-host",
-    "client-impls/local-host/meta",
-    "client-impls/mock",
-    "client-impls/mock/meta",
-    "client-impls/qbft",
-    "client-impls/qbft/meta",
-    "channel",
-    "channel/meta",
-    "connection",
-    "connection/meta",
-    "host",
-    "host/meta"
+    "multiversx-side/client",
+    "multiversx-side/client/meta",
+    "multiversx-side/client-impls/local-host",
+    "multiversx-side/client-impls/local-host/meta",
+    "multiversx-side/client-impls/mock",
+    "multiversx-side/client-impls/mock/meta",
+    "multiversx-side/client-impls/qbft",
+    "multiversx-side/client-impls/qbft/meta",
+    "multiversx-side/channel",
+    "multiversx-side/channel/meta",
+    "multiversx-side/connection",
+    "multiversx-side/connection/meta",
+    "multiversx-side/host",
+    "multiversx-side/host/meta"
 ]
