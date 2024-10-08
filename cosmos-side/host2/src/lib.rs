@@ -16,7 +16,7 @@ pub fn instantiate(
 }
 
 /*
-Read storage:
+Save to storage:
 
 let admins: StdResult<Vec<_>> = msg
         .admins
@@ -26,7 +26,7 @@ let admins: StdResult<Vec<_>> = msg
     ADMINS.save(deps.storage, &admins?)?;
 */
 
-// Save to storage: let admins = ADMINS.load(deps.storage)?;
+// Read storage: let admins = ADMINS.load(deps.storage)?;
 
 /*
 Execute endpoint:
@@ -94,4 +94,4 @@ How to import this:
 my_contract = { version = "0.1", features = ["library"] }
 */
 
-// DON'T USE usize!!!
+// DON'T USE usize in serializable types!!!
