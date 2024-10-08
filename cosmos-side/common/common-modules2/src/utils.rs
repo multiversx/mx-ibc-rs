@@ -14,7 +14,7 @@ const EMPTY_HASH: &[u8; HASH_LENGTH] = &[0u8; HASH_LENGTH];
 
 pub static UNEXPECTED_CHANNEL_STATE_ERR_MSG: &str = "Unexpected channel state";
 
-pub mod utils {
+pub mod utils_mod {
     use common_types2::Hash;
     use common_types2::{channel_types::channel, UnixTimestamp};
     use cosmwasm_std::{Addr, Env, StdError, StdResult};
@@ -24,7 +24,7 @@ pub mod utils {
     use super::{EMPTY_HASH, NANO_SECONDS_MULT};
 
     pub fn require_valid_address(address: &Addr, env: &Env) -> StdResult<()> {
-        require!(address != &env.contract.address, "Invalid address");
+        require!(address != env.contract.address, "Invalid address");
 
         Ok(())
     }

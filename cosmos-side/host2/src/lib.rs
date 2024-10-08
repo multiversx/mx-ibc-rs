@@ -1,3 +1,4 @@
+#[clippy::allow(unused_imports)]
 use cosmwasm_std::{entry_point, DepsMut, Env, MessageInfo, Response, StdResult};
 use msg::InstantiateMsg;
 
