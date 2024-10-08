@@ -12,8 +12,6 @@ pub fn instantiate(
     _info: MessageInfo,
     _msg: InstantiateMsg,
 ) -> StdResult<Response> {
-    
-
     Ok(Response::default())
 }
 
