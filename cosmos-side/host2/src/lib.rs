@@ -1,30 +1,65 @@
 // Clippy is stupid. Thinks "entry_point" is unused
 #![allow(unused_imports)]
-use cosmwasm_std::{entry_point, DepsMut, Env, MessageInfo, Response, StdResult};
-use msg::InstantiateMsg;
+use common_modules2::require;
+use cosmwasm_std::{entry_point, Addr, DepsMut, Env, MessageInfo, Response, StdResult, Storage};
+use cw_storage_plus::Item;
+use host_config::{bind_port, register_client, set_expected_time_per_block};
+use msg::{ExecuteMsg, InstantiateMsg};
 
+pub mod host_config;
 pub mod module_manager;
 pub mod msg;
 pub mod storage;
 
+pub const OWNER: Item<Addr> = Item::new("owner");
+
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
-    _deps: DepsMut,
+    deps: DepsMut,
     _env: Env,
-    _info: MessageInfo,
+    info: MessageInfo,
     _msg: InstantiateMsg,
 ) -> StdResult<Response> {
+    OWNER.save(deps.storage, &info.sender)?;
+
     Ok(Response::default())
 }
 
-/*
-Execute endpoint:
-
 #[entry_point]
 pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> StdResult<Response> {
-    contract::execute(deps, env, info, msg)
+    let result = match msg {
+        ExecuteMsg::SetExpectedTimePerBlock { exp_time_per_block } => {
+            require_owner_caller(deps.storage, &info.sender)?;
+
+            set_expected_time_per_block(deps.storage, exp_time_per_block)
+        }
+        ExecuteMsg::RegisterClient {
+            client_type,
+            client,
+        } => {
+            require_owner_caller(deps.storage, &info.sender)?;
+
+            register_client(deps.storage, client_type, client)
+        }
+        ExecuteMsg::BindPort { port_id, module } => {
+            require_owner_caller(deps.storage, &info.sender)?;
+
+            bind_port(deps.storage, &env, port_id, module)
+        }
+    };
+
+    match result {
+        Ok(()) => Ok(Response::default()),
+        Err(err) => Err(err),
+    }
 }
-*/
+
+fn require_owner_caller(storage: &dyn Storage, caller: &Addr) -> StdResult<()> {
+    let owner = OWNER.load(storage)?;
+    require!(owner == caller, "Only owner may call this endpoint");
+
+    Ok(())
+}
 
 /*
 pub fn add_members(

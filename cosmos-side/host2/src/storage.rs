@@ -12,6 +12,7 @@ pub struct ClientInfo {
 }
 
 #[cw_serde]
+#[derive(Default)]
 pub struct HostInfo {
     pub next_client_seq: Sequence,
     pub next_connection_seq: Sequence,
