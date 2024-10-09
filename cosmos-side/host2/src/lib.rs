@@ -3,6 +3,7 @@
 use cosmwasm_std::{entry_point, DepsMut, Env, MessageInfo, Response, StdResult};
 use msg::InstantiateMsg;
 
+pub mod module_manager;
 pub mod msg;
 pub mod storage;
 
@@ -15,19 +16,6 @@ pub fn instantiate(
 ) -> StdResult<Response> {
     Ok(Response::default())
 }
-
-/*
-Save to storage:
-
-let admins: StdResult<Vec<_>> = msg
-        .admins
-        .into_iter()
-        .map(|addr| deps.api.addr_validate(&addr))
-        .collect();
-    ADMINS.save(deps.storage, &admins?)?;
-*/
-
-// Read storage: let admins = ADMINS.load(deps.storage)?;
 
 /*
 Execute endpoint:
@@ -63,7 +51,7 @@ let events = admins
 /*
 Queries:
 
-TODO: Can't I use QueryResp directly?
+TODO: Maybe I can return an Enum instead?
 
 #[derive(Serialize, Deserialize)]
 struct QueryResp {
