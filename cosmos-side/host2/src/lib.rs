@@ -1,9 +1,11 @@
+// Clippy is stupid. Thinks "entry_point" is unused
 #![allow(unused_imports)]
 use cosmwasm_std::{entry_point, DepsMut, Env, MessageInfo, Response, StdResult};
 use msg::InstantiateMsg;
 
 pub mod msg;
 pub mod state;
+pub mod storage;
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
@@ -57,6 +59,26 @@ let events = admins
             .add_events(events)
             .add_attribute("action", "add_members")
             .add_attribute("added_count", admins.len().to_string());
+*/
+
+/*
+Queries:
+
+TODO: Can't I use QueryResp directly?
+
+#[derive(Serialize, Deserialize)]
+struct QueryResp {
+    message: String,
+}
+
+#[entry_point]
+pub fn query(_deps: Deps, _env: Env, _msg: Empty) -> StdResult<Binary> {
+    let resp = QueryResp {
+        message: "Hello World".to_owned(),
+    };
+
+    to_json_binary(&resp)
+}
 */
 
 /*
