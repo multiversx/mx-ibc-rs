@@ -73,11 +73,6 @@ pub mod host_helpers {
         ChannelInfo, ClientInfo, HostInfo,
     };
 
-    // TODO: Add to queries
-    pub fn get_commitment(storage: &dyn Storage, commitment_hash: &Hash) -> StdResult<Hash> {
-        COMMITMENTS.load(storage, commitment_hash)
-    }
-
     /// calculates the block delay based on the expected time per block
     pub fn calculate_block_delay(
         storage: &dyn Storage,

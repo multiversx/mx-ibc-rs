@@ -1,12 +1,17 @@
 // Clippy is stupid. Thinks "entry_point" is unused
 #![allow(unused_imports)]
 use common_modules2::require;
-use cosmwasm_std::{entry_point, Addr, DepsMut, Env, MessageInfo, Response, StdResult, Storage};
+use cosmwasm_std::{
+    entry_point, to_json_binary, Addr, Binary, Deps, DepsMut, Env, MessageInfo, Response,
+    StdResult, Storage,
+};
 use cw_storage_plus::Item;
 use host_config::{bind_port, register_client, set_expected_time_per_block};
-use msg::{ExecuteMsg, InstantiateMsg};
+use host_views::{check_and_get_client, get_commitment, get_commitment_prefix, get_host_timestamp};
+use msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 
 pub mod host_config;
+pub mod host_views;
 pub mod module_manager;
 pub mod msg;
 pub mod storage;
@@ -54,22 +59,36 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> S
     }
 }
 
+#[entry_point]
+pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
+    let query_result = match msg {
+        QueryMsg::GetCommitment { commitment_hash } => {
+            let commitment = get_commitment(deps.storage, &commitment_hash)?;
+            to_json_binary(&commitment)?
+        }
+        QueryMsg::GetHostTimestamp {} => {
+            let host_timestamp = get_host_timestamp(&env)?;
+            to_json_binary(&host_timestamp)?
+        }
+        QueryMsg::GetCommitmentPrefix {} => {
+            let prefix = get_commitment_prefix();
+            to_json_binary(&prefix)?
+        }
+        QueryMsg::CheckAndGetClient { client_id } => {
+            let client = check_and_get_client(deps.storage, &client_id)?;
+            to_json_binary(&client)?
+        }
+    };
+
+    Ok(query_result)
+}
+
 fn require_owner_caller(storage: &dyn Storage, caller: &Addr) -> StdResult<()> {
     let owner = OWNER.load(storage)?;
     require!(owner == caller, "Only owner may call this endpoint");
 
     Ok(())
 }
-
-/*
-pub fn add_members(
-        deps: DepsMut,
-        info: MessageInfo,
-        admins: Vec<String>,
-    ) -> StdResult<Response>
-
-pub fn leave(deps: DepsMut, info: MessageInfo) -> StdResult<Response>
-*/
 
 /*
 Events:
@@ -81,55 +100,6 @@ let events = admins
             .add_events(events)
             .add_attribute("action", "add_members")
             .add_attribute("added_count", admins.len().to_string());
-*/
-
-/*
-Queries:
-
-TODO: Maybe I can return an Enum instead?
-
-#[derive(Serialize, Deserialize)]
-struct QueryResp {
-    message: String,
-}
-
-#[entry_point]
-pub fn query(_deps: Deps, _env: Env, _msg: Empty) -> StdResult<Binary> {
-    let resp = QueryResp {
-        message: "Hello World".to_owned(),
-    };
-
-    to_json_binary(&resp)
-}
-*/
-
-/*
-Some other derive:
-
-#[cw_serde]
-#[derive(QueryResponses)]
-pub enum QueryMsg {
-    #[returns(GreetResp)]
-    Greet {},
-    #[returns(AdminsListResp)]
-    AdminsList {},
-}
-
-*/
-
-/*
-In bin/schema.rs:
-
-use contract::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
-use cosmwasm_schema::write_api;
-
-fn main() {
-    write_api! {
-        instantiate: InstantiateMsg,
-        execute: ExecuteMsg,
-        query: QueryMsg
-    }
-}
 */
 
 /*

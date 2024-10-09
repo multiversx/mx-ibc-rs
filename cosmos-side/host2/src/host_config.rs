@@ -14,8 +14,6 @@ use crate::{
     },
 };
 
-// TODO: Define endpoints, and make them only owner!
-
 pub fn set_expected_time_per_block(
     storage: &mut dyn Storage,
     exp_time_per_block: UnixTimestamp,
