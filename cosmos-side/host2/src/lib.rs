@@ -4,7 +4,6 @@ use cosmwasm_std::{entry_point, DepsMut, Env, MessageInfo, Response, StdResult};
 use msg::InstantiateMsg;
 
 pub mod msg;
-pub mod state;
 pub mod storage;
 
 #[cfg_attr(not(feature = "library"), entry_point)]
