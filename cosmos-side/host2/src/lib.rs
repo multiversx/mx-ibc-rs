@@ -1,5 +1,5 @@
 // Clippy is stupid. Thinks "entry_point" is unused
-//#![allow(unused_imports)]
+#![allow(unused_imports)]
 use cosmwasm_std::{
     entry_point, Addr, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
 };
