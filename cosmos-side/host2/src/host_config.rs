@@ -8,7 +8,6 @@ use cosmwasm_std::{Addr, Env, StdError, StdResult, Storage};
 use crate::{
     module_manager::claim_port_capability,
     storage::{
-        self,
         host_storage_keys::{CLIENT_REGISTRY, HOST_INFO},
         HostInfo,
     },

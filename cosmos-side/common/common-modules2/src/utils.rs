@@ -1,6 +1,7 @@
 use common_types2::{channel_types::channel, UnixTimestamp};
 use common_types2::{Hash, HASH_LENGTH};
 use cosmwasm_std::{Addr, Env, StdError, StdResult};
+use keccak_hash::keccak_buffer;
 
 #[macro_export]
 macro_rules! require {
@@ -46,4 +47,15 @@ pub fn is_empty_hash(hash: &Hash) -> bool {
 #[inline]
 pub fn std_err<T>(err_msg: &str) -> StdResult<T> {
     Err(StdError::generic_err(err_msg))
+}
+
+pub fn vec_u8_to_str(input_vec: Vec<u8>) -> String {
+    match String::from_utf8(input_vec) {
+        Ok(v) => v,
+        Err(_) => panic!("Invalid UTF-8 sequence"),
+    }
+}
+
+pub fn keccak256(input_data: &Vec<u8>) -> Hash {
+    keccak_buffer(&mut input_data.as_slice()).unwrap().into()
 }

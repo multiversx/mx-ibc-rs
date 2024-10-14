@@ -61,15 +61,14 @@ pub mod host_storage_keys {
 }
 
 pub mod host_helpers {
-    use common_modules2::utils::std_err;
     use common_types2::{
-        connection_types::connection_end, ChannelId, ClientId, ConnectionId, Hash, PortId,
-        Sequence, UnixTimestamp,
+        connection_types::connection_end, ChannelId, ClientId, ConnectionId, PortId, Sequence,
+        UnixTimestamp,
     };
     use cosmwasm_std::{StdError, StdResult, Storage};
 
     use super::{
-        host_storage_keys::{CHANNEL_INFO, CLIENT_INFO, COMMITMENTS, CONNECTION_INFO, HOST_INFO},
+        host_storage_keys::{CHANNEL_INFO, CLIENT_INFO, CONNECTION_INFO, HOST_INFO},
         ChannelInfo, ClientInfo, HostInfo,
     };
 

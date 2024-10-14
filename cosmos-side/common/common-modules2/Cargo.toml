@@ -11,6 +11,7 @@ path = "src/lib.rs"
 serde = { version = "1.0.210", default-features = false, features = ["derive"] }
 cosmwasm-std = "2.1.4"
 cosmwasm-schema = "2.1.4"
+keccak-hash = "0.11.0"
 
 [dependencies.common-types2]
 path = "../common-types2"
