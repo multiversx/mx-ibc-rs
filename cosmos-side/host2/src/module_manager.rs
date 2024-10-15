@@ -23,12 +23,13 @@ pub fn claim_channel_capability(
     channel_id: &ChannelId,
     address: &Addr,
 ) -> StdResult<()> {
+    let key_ref = &(port_id, channel_id);
     require!(
-        CHANNEL_CAPABILITIES.is_empty_at_key(storage, &(port_id, channel_id)),
+        CHANNEL_CAPABILITIES.is_empty_at_key(storage, key_ref),
         "Channel already claimed"
     );
 
-    CHANNEL_CAPABILITIES.save(storage, &(port_id, channel_id), address)
+    CHANNEL_CAPABILITIES.save(storage, key_ref, address)
 }
 
 pub fn authenticate_channel_capability(
@@ -37,12 +38,13 @@ pub fn authenticate_channel_capability(
     channel_id: &ChannelId,
     user: &Addr,
 ) -> StdResult<()> {
+    let key_ref = &(port_id, channel_id);
     require!(
-        !CHANNEL_CAPABILITIES.is_empty_at_key(storage, &(port_id, channel_id)),
+        !CHANNEL_CAPABILITIES.is_empty_at_key(storage, key_ref),
         "Channel not claimed"
     );
 
-    let stored_addr = CHANNEL_CAPABILITIES.load(storage, &(port_id, channel_id))?;
+    let stored_addr = CHANNEL_CAPABILITIES.load(storage, key_ref)?;
     require!(stored_addr == user, "Not allowed to use this port");
 
     Ok(())
@@ -62,10 +64,11 @@ pub fn lookup_module_by_channel(
     port_id: &PortId,
     channel_id: &ChannelId,
 ) -> StdResult<Addr> {
+    let key_ref = &(port_id, channel_id);
     require!(
-        !CHANNEL_CAPABILITIES.is_empty_at_key(storage, &(port_id, channel_id)),
+        !CHANNEL_CAPABILITIES.is_empty_at_key(storage, key_ref),
         "Channel not found"
     );
 
-    CHANNEL_CAPABILITIES.load(storage, &(port_id, channel_id))
+    CHANNEL_CAPABILITIES.load(storage, key_ref)
 }
