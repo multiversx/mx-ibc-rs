@@ -1,8 +1,8 @@
-// https://github.com/hyperledger-labs/yui-ibc-solidity/blob/main/contracts/core/24-host/IBCCommitment.sol
-// https://github.com/cosmos/ibc/tree/main/spec/core/ics-024-host-requirements#path-space
-
 use common_modules2::utils::{keccak256, vec_u8_to_str};
 use common_types2::{ChannelId, ClientId, ConnectionId, Hash, Path, PortId, Sequence};
+
+// https://github.com/hyperledger-labs/yui-ibc-solidity/blob/main/contracts/core/24-host/IBCCommitment.sol
+// https://github.com/cosmos/ibc/tree/main/spec/core/ics-024-host-requirements#path-space
 
 /// "clients/{identifier}/clientState"
 pub fn get_client_state_path(client_id: &ClientId) -> Path {
