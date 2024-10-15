@@ -25,6 +25,7 @@ pub trait ClientLogicModule:
     + host::storage::StorageModule
     + common_modules::utils::UtilsModule
 {
+    /// initializes a new client with the given state
     #[endpoint(initializeClient)]
     fn initialize_client(
         &self,
