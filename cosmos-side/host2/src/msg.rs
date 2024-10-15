@@ -10,12 +10,10 @@ use crate::{
 };
 
 #[cw_serde]
-pub struct InstantiateMsg {
-    pub admins: Vec<String>,
-}
+pub struct InstantiateMsg {}
 
 #[cw_serde]
-pub enum ExecuteMsg {
+pub enum HostExecuteMsg {
     SetExpectedTimePerBlock {
         exp_time_per_block: UnixTimestamp,
     },
@@ -31,7 +29,7 @@ pub enum ExecuteMsg {
 
 #[cw_serde]
 #[derive(QueryResponses)]
-pub enum QueryMsg {
+pub enum HostQueryMsg {
     #[returns(Hash)]
     GetCommitment { commitment_hash: Hash },
 
@@ -49,15 +47,15 @@ pub fn execute_host_endpoint(
     storage: &mut dyn Storage,
     env: &Env,
     info: &MessageInfo,
-    msg: ExecuteMsg,
+    msg: HostExecuteMsg,
 ) -> StdResult<()> {
     match msg {
-        ExecuteMsg::SetExpectedTimePerBlock { exp_time_per_block } => {
+        HostExecuteMsg::SetExpectedTimePerBlock { exp_time_per_block } => {
             require_owner_caller(storage, &info.sender)?;
 
             set_expected_time_per_block(storage, exp_time_per_block)
         }
-        ExecuteMsg::RegisterClient {
+        HostExecuteMsg::RegisterClient {
             client_type,
             client,
         } => {
@@ -65,7 +63,7 @@ pub fn execute_host_endpoint(
 
             register_client(storage, client_type, client)
         }
-        ExecuteMsg::BindPort { port_id, module } => {
+        HostExecuteMsg::BindPort { port_id, module } => {
             require_owner_caller(storage, &info.sender)?;
 
             bind_port(storage, env, port_id, module)
@@ -73,21 +71,25 @@ pub fn execute_host_endpoint(
     }
 }
 
-pub fn execute_host_query(storage: &dyn Storage, env: &Env, msg: QueryMsg) -> StdResult<Binary> {
+pub fn execute_host_query(
+    storage: &dyn Storage,
+    env: &Env,
+    msg: HostQueryMsg,
+) -> StdResult<Binary> {
     let result = match msg {
-        QueryMsg::GetCommitment { commitment_hash } => {
+        HostQueryMsg::GetCommitment { commitment_hash } => {
             let commitment = get_commitment(storage, &commitment_hash)?;
             to_json_binary(&commitment)?
         }
-        QueryMsg::GetHostTimestamp {} => {
+        HostQueryMsg::GetHostTimestamp {} => {
             let host_timestamp = get_host_timestamp(env)?;
             to_json_binary(&host_timestamp)?
         }
-        QueryMsg::GetCommitmentPrefix {} => {
+        HostQueryMsg::GetCommitmentPrefix {} => {
             let prefix = get_commitment_prefix();
             to_json_binary(&prefix)?
         }
-        QueryMsg::CheckAndGetClient { client_id } => {
+        HostQueryMsg::CheckAndGetClient { client_id } => {
             let client = check_and_get_client(storage, &client_id)?;
             to_json_binary(&client)?
         }

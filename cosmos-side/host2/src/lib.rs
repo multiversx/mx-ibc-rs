@@ -4,7 +4,7 @@ use cosmwasm_std::{
     entry_point, Addr, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
 };
 use cw_storage_plus::Item;
-use msg::{execute_host_endpoint, execute_host_query, ExecuteMsg, InstantiateMsg, QueryMsg};
+use msg::{execute_host_endpoint, execute_host_query, HostExecuteMsg, InstantiateMsg, HostQueryMsg};
 
 pub mod commitment;
 pub mod host_config;
@@ -28,7 +28,7 @@ pub fn instantiate(
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
-pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> StdResult<Response> {
+pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: HostExecuteMsg) -> StdResult<Response> {
     let result = execute_host_endpoint(deps.storage, &env, &info, msg);
 
     match result {
@@ -38,7 +38,7 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> S
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
-pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
+pub fn query(deps: Deps, env: Env, msg: HostQueryMsg) -> StdResult<Binary> {
     execute_host_query(deps.storage, &env, msg)
 }
 
