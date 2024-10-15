@@ -1,4 +1,4 @@
-use common_types::{ChannelId, ClientId, ConnectionId, Hash, Path, PortId};
+use common_types::{ChannelId, ClientId, ConnectionId, Hash, Path, PortId, Sequence};
 
 multiversx_sc::imports!();
 
@@ -46,7 +46,7 @@ pub trait CommitmentModule {
         &self,
         port_id: &PortId<Self::Api>,
         channel_id: &ChannelId<Self::Api>,
-        sequence: u64,
+        sequence: Sequence,
     ) -> Path<Self::Api> {
         sc_format!(
             "commitments/ports/{}/channels/{}/sequences/{}",
@@ -61,7 +61,7 @@ pub trait CommitmentModule {
         &self,
         port_id: &PortId<Self::Api>,
         channel_id: &ChannelId<Self::Api>,
-        sequence: u64,
+        sequence: Sequence,
     ) -> Path<Self::Api> {
         sc_format!(
             "acks/ports/{}/channels/{}/sequences/{}",
@@ -76,7 +76,7 @@ pub trait CommitmentModule {
         &self,
         port_id: &PortId<Self::Api>,
         channel_id: &ChannelId<Self::Api>,
-        sequence: u64,
+        sequence: Sequence,
     ) -> Path<Self::Api> {
         sc_format!(
             "receipts/ports/{}/channels/{}/sequences/{}",
@@ -189,7 +189,7 @@ pub trait CommitmentModule {
         &self,
         port_id: &PortId<Self::Api>,
         channel_id: &ChannelId<Self::Api>,
-        sequence: u64,
+        sequence: Sequence,
     ) -> Hash<Self::Api> {
         self.crypto()
             .keccak256(self.get_packet_commitment_path(port_id, channel_id, sequence))
@@ -199,7 +199,7 @@ pub trait CommitmentModule {
         &self,
         port_id: &PortId<Self::Api>,
         channel_id: &ChannelId<Self::Api>,
-        sequence: u64,
+        sequence: Sequence,
     ) -> Hash<Self::Api> {
         self.crypto().keccak256(
             self.get_packet_acknowledgement_commitment_path(port_id, channel_id, sequence),
@@ -210,7 +210,7 @@ pub trait CommitmentModule {
         &self,
         port_id: &PortId<Self::Api>,
         channel_id: &ChannelId<Self::Api>,
-        sequence: u64,
+        sequence: Sequence,
     ) -> Hash<Self::Api> {
         self.crypto()
             .keccak256(self.get_packet_receipt_commitment_path(port_id, channel_id, sequence))

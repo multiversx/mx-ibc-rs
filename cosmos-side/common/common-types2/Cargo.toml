@@ -1,0 +1,13 @@
+[package]
+name = "common-types2"
+version = "0.0.0"
+authors = ["Dorin Iancu <dorin.iancu@multiversx.com>"]
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1.0.210", default-features = false, features = ["derive"] }
+cosmwasm-std = "2.1.4"
+cosmwasm-schema = "2.1.4"

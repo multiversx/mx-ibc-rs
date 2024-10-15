@@ -15,5 +15,6 @@ members = [
     "multiversx-side/connection",
     "multiversx-side/connection/meta",
     "multiversx-side/host",
-    "multiversx-side/host/meta"
+    "multiversx-side/host/meta",
+    "cosmos-side/host2"
 ]
