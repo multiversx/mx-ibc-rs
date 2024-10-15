@@ -391,6 +391,7 @@ dependencies = [
  "common-types2",
  "cosmwasm-schema",
  "cosmwasm-std",
+ "cw-storage-plus",
  "keccak-hash",
  "serde",
 ]

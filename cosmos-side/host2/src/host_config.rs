@@ -1,6 +1,8 @@
 use common_modules2::{
-    client_lib::is_valid_client_type, host_lib::is_valid_port_id, require,
-    utils::require_valid_address,
+    client_lib::is_valid_client_type,
+    host_lib::is_valid_port_id,
+    require,
+    utils::{require_valid_address, IsEmptyStorageItem, IsEmptyStorageMap},
 };
 use common_types2::{ClientType, PortId, UnixTimestamp};
 use cosmwasm_std::{Addr, Env, StdError, StdResult, Storage};
@@ -17,8 +19,7 @@ pub fn set_expected_time_per_block(
     storage: &mut dyn Storage,
     exp_time_per_block: UnixTimestamp,
 ) -> StdResult<()> {
-    let may_load_result = HOST_INFO.may_load(storage);
-    if !matches!(may_load_result, Ok(None)) {
+    if !HOST_INFO.is_empty(storage) {
         let update_result: Result<_, StdError> =
             HOST_INFO.update(storage, |mut host_info: HostInfo| {
                 host_info.expected_time_per_block = exp_time_per_block;
@@ -45,9 +46,10 @@ pub fn register_client(
     client: Addr,
 ) -> StdResult<()> {
     require!(is_valid_client_type(&client_type), "Invalid client ID");
-
-    let may_load_result = CLIENT_REGISTRY.may_load(storage, &client_type);
-    require!(matches!(may_load_result, Ok(None)), "Client already exists");
+    require!(
+        CLIENT_REGISTRY.is_empty_at_key(storage, &client_type),
+        "Client already exists"
+    );
 
     CLIENT_REGISTRY.save(storage, &client_type, &client)
 }

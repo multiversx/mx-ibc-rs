@@ -55,9 +55,9 @@ pub mod host_storage_keys {
     pub const CLIENT_REGISTRY: Map<&ClientType, Addr> = Map::new("clientReg");
     pub const CLIENT_INFO: Map<&ClientId, ClientInfo> = Map::new("clientInfo");
     pub const PORT_CAPABILITIES: Map<&PortId, Addr> = Map::new("portCap");
-    pub const CHANNEL_CAPABILITIES: Map<(&PortId, &ChannelId), Addr> = Map::new("channelCap");
+    pub const CHANNEL_CAPABILITIES: Map<&(&PortId, &ChannelId), Addr> = Map::new("channelCap");
     pub const CONNECTION_INFO: Map<&ConnectionId, connection_end::Data> = Map::new("connInfo");
-    pub const CHANNEL_INFO: Map<(&PortId, &ChannelId), ChannelInfo> = Map::new("channelInfo");
+    pub const CHANNEL_INFO: Map<&(&PortId, &ChannelId), ChannelInfo> = Map::new("channelInfo");
 }
 
 pub mod host_helpers {
@@ -146,6 +146,6 @@ pub mod host_helpers {
         port_id: &PortId,
         channel_id: &ChannelId,
     ) -> StdResult<ChannelInfo> {
-        CHANNEL_INFO.load(storage, (port_id, channel_id))
+        CHANNEL_INFO.load(storage, &(port_id, channel_id))
     }
 }
