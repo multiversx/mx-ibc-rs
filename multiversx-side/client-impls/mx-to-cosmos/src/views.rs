@@ -19,7 +19,7 @@ pub trait ViewsModule:
         client_id: ClientId<Self::Api>,
         height: height::Data,
     ) -> UnixTimestamp {
-        let mapper = self.consensus_states(&client_id, &height.to_biguint_concat());
+        let mapper = self.consensus_states(&client_id, &height.to_concat_buffer());
         require!(!mapper.is_empty(), "Consensus state not found");
 
         let consensus_state = mapper.get();
@@ -48,7 +48,7 @@ pub trait ViewsModule:
     fn get_latest_info(&self, client_id: ClientId<Self::Api>) -> GetLatestInfoResultType {
         let latest_height = self.get_latest_height(&client_id);
         let consensus_state = self
-            .consensus_states(&client_id, &latest_height.to_biguint_concat())
+            .consensus_states(&client_id, &latest_height.to_concat_buffer())
             .get();
         let client_status = self.get_status(&client_id);
 

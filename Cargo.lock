@@ -1233,6 +1233,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "mx-to-cosmos"
+version = "0.0.0"
+dependencies = [
+ "client-common",
+ "common-modules",
+ "common-types",
+ "host",
+ "multiversx-sc",
+ "multiversx-sc-scenario",
+ "num-bigint",
+]
+
+[[package]]
+name = "mx-to-cosmos-meta"
+version = "0.0.0"
+dependencies = [
+ "multiversx-sc-meta-lib",
+ "mx-to-cosmos",
+]
+
+[[package]]
 name = "nibble_vec"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1367,27 +1388,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.77",
-]
-
-[[package]]
-name = "qbft"
-version = "0.0.0"
-dependencies = [
- "client-common",
- "common-modules",
- "common-types",
- "host",
- "multiversx-sc",
- "multiversx-sc-scenario",
- "num-bigint",
-]
-
-[[package]]
-name = "qbft-meta"
-version = "0.0.0"
-dependencies = [
- "multiversx-sc-meta-lib",
- "qbft",
 ]
 
 [[package]]

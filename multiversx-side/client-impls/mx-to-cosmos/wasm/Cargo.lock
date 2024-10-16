@@ -130,6 +130,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "mx-to-cosmos"
+version = "0.0.0"
+dependencies = [
+ "client-common",
+ "common-modules",
+ "common-types",
+ "host",
+ "multiversx-sc",
+]
+
+[[package]]
+name = "mx-to-cosmos-wasm"
+version = "0.0.0"
+dependencies = [
+ "multiversx-sc-wasm-adapter",
+ "mx-to-cosmos",
+]
+
+[[package]]
 name = "nibble_vec"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -154,25 +173,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5e719e8df665df0d1c8fbfd238015744736151d4445ec0836b8e628aae103b77"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "qbft"
-version = "0.0.0"
-dependencies = [
- "client-common",
- "common-modules",
- "common-types",
- "host",
- "multiversx-sc",
-]
-
-[[package]]
-name = "qbft-wasm"
-version = "0.0.0"
-dependencies = [
- "multiversx-sc-wasm-adapter",
- "qbft",
 ]
 
 [[package]]

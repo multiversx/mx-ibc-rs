@@ -9,7 +9,7 @@ pub type Hash = [u8; HASH_LENGTH];
 pub type UnixTimestamp = u64;
 pub type Sequence = u64;
 
-pub type ChainId = [u8; 32];
+pub type ChainId = Vec<u8>;
 pub type ClientId = Vec<u8>;
 pub type ClientType = Vec<u8>;
 pub type ConnectionId = Vec<u8>;

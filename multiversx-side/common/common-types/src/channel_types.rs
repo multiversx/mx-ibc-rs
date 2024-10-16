@@ -62,6 +62,8 @@ pub mod channel_counterparty {
 }
 
 pub mod height {
+    use crate::EncodedHeight;
+
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
@@ -87,12 +89,15 @@ pub mod height {
             self.revision_number == 0 && self.revision_height == 0
         }
 
-        pub fn to_biguint_concat<M: ManagedTypeApi>(&self) -> BigUint<M> {
+        pub fn to_concat_buffer<M: ManagedTypeApi>(&self) -> EncodedHeight<M> {
             let mut buffer = ManagedBuffer::new();
-            let _ = self.revision_number.dep_encode(&mut buffer);
-            let _ = self.revision_height.dep_encode(&mut buffer);
+            let _ = self.top_encode(&mut buffer);
 
-            BigUint::from_bytes_be_buffer(&buffer)
+            let result = EncodedHeight::try_from(buffer);
+            match result {
+                Ok(val) => val,
+                Err(_) => M::error_api_impl().signal_error(b"Error converting to ManagedByteArray"),
+            }
         }
     }
 

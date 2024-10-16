@@ -1,10 +1,10 @@
 [package]
-name = "qbft-meta"
+name = "mx-to-cosmos-meta"
 version = "0.0.0"
 edition = "2021"
 publish = false
 
-[dependencies.qbft]
+[dependencies.mx-to-cosmos]
 path = ".."
 
 [dependencies.multiversx-sc-meta-lib]
