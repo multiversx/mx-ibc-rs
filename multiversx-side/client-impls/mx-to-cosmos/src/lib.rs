@@ -7,7 +7,7 @@ pub mod cosmos_types;
 pub mod views;
 
 #[multiversx_sc::contract]
-pub trait Qbft:
+pub trait MxToCosmosClient:
     client_common::CommonClientLogicModule
     + client_logic::ClientLogicModule
     + views::ViewsModule
