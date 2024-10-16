@@ -91,8 +91,7 @@ pub mod height {
 
         pub fn to_concat_buffer<M: ManagedTypeApi>(&self) -> EncodedHeight<M> {
             let mut buffer = ManagedBuffer::new();
-            let _ = self.revision_number.dep_encode(&mut buffer);
-            let _ = self.revision_height.dep_encode(&mut buffer);
+            let _ = self.top_encode(&mut buffer);
 
             let result = EncodedHeight::try_from(buffer);
             match result {
