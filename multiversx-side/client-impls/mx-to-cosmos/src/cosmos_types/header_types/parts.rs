@@ -1,4 +1,4 @@
-use common_types::{ChainId, Hash, UnixTimestamp};
+use common_types::{ChainId, EncodedHeight, Hash, UnixTimestamp};
 
 use super::helpers::{BlockId, CosmosAddress, HeaderVersion, Proposer, SignatureData, Validator};
 
@@ -9,7 +9,7 @@ multiversx_sc::derive_imports!();
 pub struct CosmWasmHeaderPart<M: ManagedTypeApi> {
     pub version: HeaderVersion,
     pub chain_id: ChainId<M>,
-    pub height: u64, // TODO: Maybe BigUint (i.e. two concatenated u64)
+    pub height: EncodedHeight<M>,
     pub time: UnixTimestamp,
     pub last_block_id: BlockId<M>,
     pub last_commit_hash: Hash<M>,
@@ -25,7 +25,7 @@ pub struct CosmWasmHeaderPart<M: ManagedTypeApi> {
 
 #[derive(TypeAbi, TopDecode, NestedDecode)]
 pub struct Commit<M: ManagedTypeApi> {
-    pub height: u64, // TODO: Maybe BigUint (i.e. two concatenated u64),
+    pub height: EncodedHeight<M>,
     pub round: u64,
     pub block_id: BlockId<M>,
     pub signatures: ManagedVec<M, SignatureData<M>>,

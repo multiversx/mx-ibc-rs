@@ -1,5 +1,5 @@
 use client_common::ClientStatus;
-use common_types::{channel_types::height, ClientId};
+use common_types::{channel_types::height, ClientId, EncodedHeight};
 
 use crate::mock_types::{client_state, consensus_state, header};
 
@@ -27,7 +27,7 @@ pub trait ClientLogicModule: client_common::CommonClientLogicModule {
         require!(mapper.is_empty(), "Client already known");
 
         mapper.set(&client_state);
-        self.consensus_states(&client_id, &client_state.latest_height.to_biguint_concat())
+        self.consensus_states(&client_id, &client_state.latest_height.to_concat_buffer())
             .set(consensus_state);
         self.statuses(&client_id).set(ClientStatus::Active);
 
@@ -70,7 +70,7 @@ pub trait ClientLogicModule: client_common::CommonClientLogicModule {
             mapper.set(client_state::Data::new(header.height));
         }
 
-        self.consensus_states(&client_id, &header.height.to_biguint_concat())
+        self.consensus_states(&client_id, &header.height.to_concat_buffer())
             .set(consensus_state::Data::new(header.timestamp));
 
         ManagedVec::from_single_item(header.height)
@@ -90,7 +90,7 @@ pub trait ClientLogicModule: client_common::CommonClientLogicModule {
     fn consensus_states(
         &self,
         client_id: &ClientId<Self::Api>,
-        height: &BigUint,
+        height: &EncodedHeight<Self::Api>,
     ) -> SingleValueMapper<consensus_state::Data>;
 
     #[storage_mapper("statuses")]

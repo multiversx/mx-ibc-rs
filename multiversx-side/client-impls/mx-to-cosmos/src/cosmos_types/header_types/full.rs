@@ -1,3 +1,5 @@
+use common_types::EncodedHeight;
+
 use super::parts::{Commit, CosmWasmHeaderPart, ValidatorSet};
 
 multiversx_sc::imports!();
@@ -8,5 +10,5 @@ pub struct SignedCosmWasmHeaderFull<M: ManagedTypeApi> {
     pub header: CosmWasmHeaderPart<M>,
     pub commit: Commit<M>,
     pub validator_set: ValidatorSet<M>,
-    pub trusted_height: u64, // ???????
+    pub trusted_height: EncodedHeight<M>,
 }

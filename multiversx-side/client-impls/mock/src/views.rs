@@ -100,7 +100,7 @@ pub trait ViewsModule:
         client_id: &ClientId<Self::Api>,
         height: &height::Data,
     ) -> consensus_state::Data {
-        let mapper = self.consensus_states(client_id, &height.to_biguint_concat());
+        let mapper = self.consensus_states(client_id, &height.to_concat_buffer());
         require!(!mapper.is_empty(), "Consensus state not found");
 
         mapper.get()
@@ -129,7 +129,7 @@ pub trait ViewsModule:
         // abi.encodePacked(height.toUint128(), sha256(prefix), sha256(path), sha256(value))
         let mut buffer = ManagedBuffer::new();
         let _ = height
-            .to_biguint_concat::<Self::Api>()
+            .to_concat_buffer::<Self::Api>()
             .top_encode(&mut buffer);
         let _ = prefix_hash.dep_encode(&mut buffer);
         let _ = path_hash.dep_encode(&mut buffer);

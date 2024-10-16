@@ -1,5 +1,5 @@
 use crate::cosmos_types::{client_state, consensus_state};
-use common_types::{channel_types::height, ClientId};
+use common_types::{channel_types::height, ClientId, EncodedHeight};
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
@@ -41,7 +41,7 @@ pub trait ClientLogicModule:
         require!(!consensus_state.validators.is_empty(), "Empty validators");
 
         self.client_states(&client_id).set(&client_state);
-        self.consensus_states(&client_id, &client_state.latest_height.to_biguint_concat())
+        self.consensus_states(&client_id, &client_state.latest_height.to_concat_buffer())
             .set(consensus_state);
 
         client_state.latest_height
@@ -116,7 +116,7 @@ pub trait ClientLogicModule:
     fn consensus_states(
         &self,
         client_id: &ClientId<Self::Api>,
-        height: &BigUint,
+        height: &EncodedHeight<Self::Api>,
     ) -> SingleValueMapper<consensus_state::Data<Self::Api>>;
 
     #[storage_mapper("processedTimes")]
