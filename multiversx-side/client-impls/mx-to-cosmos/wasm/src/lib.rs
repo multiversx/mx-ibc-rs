@@ -6,9 +6,9 @@
 
 // Init:                                 1
 // Upgrade:                              1
-// Endpoints:                           11
+// Endpoints:                           10
 // Async Callback (empty):               1
-// Total number of exported functions:  14
+// Total number of exported functions:  13
 
 #![no_std]
 
@@ -22,7 +22,6 @@ multiversx_sc_wasm_adapter::endpoints! {
         upgrade => upgrade
         getIbcHandler => ibc_handler
         initializeClient => initialize_client
-        updateClient => update_client
         getTimestampAtHeight => get_timestamp_at_height
         getLatestHeight => get_latest_height
         getStatus => get_status

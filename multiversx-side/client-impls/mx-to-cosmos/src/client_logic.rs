@@ -1,5 +1,5 @@
-use crate::qbft_types::{client_state, consensus_state, header};
-use common_types::{channel_types::height, ClientId, Hash, UnixTimestamp};
+use crate::cosmos_types::{client_state, consensus_state};
+use common_types::{channel_types::height, ClientId};
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
@@ -10,13 +10,13 @@ multiversx_sc::derive_imports!();
 // static CLIENT_STATE_TYPE_URL: &[u8] = b"/ibc.lightclients.qbft.v1.ClientState";
 // static CONSENSUS_STATE_TYPE_URL: &[u8] = b"/ibc.lightclients.qbft.v1.ConsensusState";
 
-pub struct ParsedBesuHeader<M: ManagedTypeApi> {
-    pub base: header::Data<M>,
-    pub height: height::Data,
-    pub state_root: Hash<M>,
-    pub time: UnixTimestamp,
-    pub validators: ManagedVec<M, ManagedAddress<M>>, // TODO: Was RLPReader.RLPItem[]. Why?
-}
+// pub struct ParsedBesuHeader<M: ManagedTypeApi> {
+//     pub base: header::Data<M>,
+//     pub height: height::Data,
+//     pub state_root: Hash<M>,
+//     pub time: UnixTimestamp,
+//     pub validators: ManagedVec<M, ManagedAddress<M>>, // TODO: Was RLPReader.RLPItem[]. Why?
+// }
 
 #[multiversx_sc::module]
 pub trait ClientLogicModule:
@@ -48,19 +48,19 @@ pub trait ClientLogicModule:
     }
 
     /// updates the client with the given header
-    #[endpoint(updateClient)]
-    fn update_client(
-        &self,
-        client_id: ClientId<Self::Api>,
-        _header: header::Data<Self::Api>,
-    ) -> ManagedVec<height::Data> {
-        let client_state_mapper = self.client_states(&client_id);
-        require!(client_state_mapper.is_empty(), "Unknown client");
+    // #[endpoint(updateClient)]
+    // fn update_client(
+    //     &self,
+    //     client_id: ClientId<Self::Api>,
+    //     _header: header::Data<Self::Api>,
+    // ) -> ManagedVec<height::Data> {
+    //     let client_state_mapper = self.client_states(&client_id);
+    //     require!(client_state_mapper.is_empty(), "Unknown client");
 
-        // TODO
+    //     // TODO
 
-        ManagedVec::new()
-    }
+    //     ManagedVec::new()
+    // }
 
     /*
     function parseBesuHeader(Header.Data memory header) internal pure returns (ParsedBesuHeader memory) {
