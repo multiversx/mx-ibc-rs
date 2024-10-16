@@ -1,6 +1,6 @@
 use common_types::{ChainId, Hash, UnixTimestamp};
 
-use super::helpers::{BlockId, CosmosAddress, HeaderVersion, SignatureData};
+use super::helpers::{BlockId, CosmosAddress, HeaderVersion, Proposer, SignatureData, Validator};
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
@@ -29,4 +29,11 @@ pub struct Commit<M: ManagedTypeApi> {
     pub round: u64,
     pub block_id: BlockId<M>,
     pub signatures: ManagedVec<M, SignatureData<M>>,
+}
+
+#[derive(TypeAbi, TopDecode, NestedDecode)]
+pub struct ValidatorSet<M: ManagedTypeApi> {
+    pub validators: ManagedVec<M, Validator<M>>,
+    pub proposer: Proposer<M>,
+    pub total_voting_power: u64,
 }

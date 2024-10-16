@@ -1,4 +1,4 @@
-use super::parts::{Commit, CosmWasmHeaderPart};
+use super::parts::{Commit, CosmWasmHeaderPart, ValidatorSet};
 
 multiversx_sc::imports!();
 multiversx_sc::derive_imports!();
@@ -7,4 +7,6 @@ multiversx_sc::derive_imports!();
 pub struct SignedCosmWasmHeaderFull<M: ManagedTypeApi> {
     pub header: CosmWasmHeaderPart<M>,
     pub commit: Commit<M>,
+    pub validator_set: ValidatorSet<M>,
+    pub trusted_height: u64, // ???????
 }

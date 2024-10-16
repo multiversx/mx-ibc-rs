@@ -15,6 +15,7 @@ pub struct Data<M: ManagedTypeApi> {
 
 pub type Signature<M> = ManagedByteArray<M, 64>;
 pub type CosmosAddress<M> = ManagedByteArray<M, 20>;
+pub type Ed25519Sum<M> = ManagedByteArray<M, 32>;
 
 #[derive(TypeAbi, TopDecode, NestedDecode)]
 pub struct HeaderVersion {
@@ -41,3 +42,23 @@ pub struct SignatureData<M: ManagedTypeApi> {
     pub timestamp: UnixTimestamp,
     pub signature: Signature<M>,
 }
+
+#[derive(TypeAbi, TopDecode, NestedDecode, ManagedVecItem)]
+pub struct Sum<M: ManagedTypeApi> {
+    pub ed25519: Ed25519Sum<M>,
+}
+
+#[derive(TypeAbi, TopDecode, NestedDecode, ManagedVecItem)]
+pub struct PublicKey<M: ManagedTypeApi> {
+    pub sum: Sum<M>,
+}
+
+#[derive(TypeAbi, TopDecode, NestedDecode, ManagedVecItem)]
+pub struct Validator<M: ManagedTypeApi> {
+    pub address: CosmosAddress<M>,
+    pub public_key: PublicKey<M>,
+    pub voting_power: u64,
+    pub proposer_priority: i64, // TODO: Make sure decoding signed integers works
+}
+
+pub type Proposer<M> = Validator<M>;
