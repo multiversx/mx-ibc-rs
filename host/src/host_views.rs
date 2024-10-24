@@ -1,19 +1,19 @@
-use common_types::ClientId;
+use common_types::{ClientId, Timestamp};
 
 multiversx_sc::imports!();
 
 static DEFAULT_COMMITMENT_PREFIX: &[u8] = b"ibc";
-const NANO_SECONDS_MULT: u64 = 1_000_000_000;
 
 #[multiversx_sc::module]
-pub trait HostViewsModule: crate::storage::StorageModule {
+pub trait HostViewsModule:
+    crate::storage::StorageModule + common_modules::utils::UtilsModule
+{
     /// Returns the current timestamp (Unix time in nanoseconds) of the host chain.
-    /// Could theoretically simply use u64, but don't want to risk overflow
     #[view(getHostTimestamp)]
-    fn get_host_timestamp(&self) -> BigUint {
+    fn get_host_timestamp(&self) -> Timestamp {
         let block_timestamp = self.blockchain().get_block_timestamp();
 
-        BigUint::from(block_timestamp) * NANO_SECONDS_MULT
+        self.checked_timestamp_to_unix_mul(block_timestamp)
     }
 
     #[view(getCommitmentPrefix)]
@@ -22,10 +22,11 @@ pub trait HostViewsModule: crate::storage::StorageModule {
     }
 
     #[view(checkAndGetClient)]
-    fn check_and_get_client(&self, client_id: ClientId<Self::Api>) -> ManagedAddress {
-        let mapper = self.client_registry(&client_id);
+    fn check_and_get_client(&self, client_id: &ClientId<Self::Api>) -> ManagedAddress {
+        let mapper = self.client_info(client_id);
         require!(!mapper.is_empty(), "Client not found");
 
-        mapper.get()
+        let client_info = mapper.get();
+        client_info.client_impl
     }
 }

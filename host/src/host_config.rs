@@ -1,4 +1,4 @@
-use common_types::{ClientId, PortId, Timestamp};
+use common_types::{ClientType, PortId, Timestamp};
 
 use crate::storage::HostInfo;
 
@@ -27,10 +27,10 @@ pub trait HostConfigModule:
         mapper.set(default_host_value);
     }
 
-    fn register_client(&self, client_id: &ClientId<Self::Api>, client: &ManagedAddress) {
-        require!(self.is_valid_client_id(client_id), "Invalid client ID");
+    fn register_client(&self, client_type: &ClientType<Self::Api>, client: &ManagedAddress) {
+        require!(self.is_valid_client_type(client_type), "Invalid client ID");
 
-        let mapper = self.client_registry(client_id);
+        let mapper = self.client_registry(client_type);
         require!(mapper.is_empty(), "Client already exists");
         self.require_valid_address(client);
 

@@ -9,11 +9,11 @@ pub mod module_manager;
 pub mod storage;
 
 #[multiversx_sc::contract]
-pub trait Ibc:
-    host_config::HostConfigModule
-    + module_manager::ModuleManagerModule
+pub trait Host:
+    commitment::CommitmentModule
+    + host_config::HostConfigModule
     + host_views::HostViewsModule
-    + commitment::CommitmentModule
+    + module_manager::ModuleManagerModule
     + storage::StorageModule
     + common_modules::client_lib::ClientLibModule
     + common_modules::host_lib::HostLibModule
