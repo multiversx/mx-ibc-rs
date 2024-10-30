@@ -38,7 +38,7 @@ pub trait ModuleManagerModule: crate::storage::StorageModule {
 
     fn lookup_module_by_port(&self, port_id: &PortId<Self::Api>) -> ManagedAddress {
         let mapper = self.port_capabilities(port_id);
-        require!(mapper.is_empty(), "Port not found");
+        require!(!mapper.is_empty(), "Port not found");
 
         mapper.get()
     }
