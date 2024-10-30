@@ -1,10 +1,13 @@
 pub mod channel {
-    use crate::{channel_types::channel_counterparty, Sequence};
+    use crate::{channel_types::channel_counterparty, ConnectionHops, Sequence, Version};
 
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
-    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
+    pub static ORDERED: &[u8] = b"ORDER_ORDERED";
+    pub static UNORDERED: &[u8] = b"ORDER_UNORDERED";
+
+    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Clone, Copy)]
     pub enum State {
         UninitializedUnspecified,
         Init,
@@ -15,11 +18,23 @@ pub mod channel {
         FlushComplete,
     }
 
-    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
+    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Clone, Copy)]
     pub enum Order {
         NoneUnspecified,
         Unordered,
         Ordered,
+    }
+
+    impl Order {
+        pub fn to_byte_slice<M: ManagedTypeApi>(&self) -> &[u8] {
+            match *self {
+                Order::NoneUnspecified => {
+                    M::error_api_impl().signal_error(b"Unknown channel order")
+                }
+                Order::Unordered => UNORDERED,
+                Order::Ordered => ORDERED,
+            }
+        }
     }
 
     #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
@@ -27,8 +42,8 @@ pub mod channel {
         pub state: State,
         pub ordering: Order,
         pub counterparty: channel_counterparty::Data<M>,
-        pub connection_hops: ManagedVec<M, ManagedBuffer<M>>, // TODO: Maybe custom type
-        pub version: ManagedBuffer<M>,
+        pub connection_hops: ConnectionHops<M>,
+        pub version: Version<M>,
         pub upgrade_sequence: Sequence,
     }
 }
@@ -68,12 +83,8 @@ pub mod height {
     }
 
     impl Data {
-        #[inline]
-        pub fn new(revision_number: u64, revision_height: u64) -> Self {
-            Self {
-                revision_number,
-                revision_height,
-            }
+        pub fn is_zero(&self) -> bool {
+            self.revision_number == 0 && self.revision_height == 0
         }
 
         pub fn to_biguint_concat<M: ManagedTypeApi>(&self) -> BigUint<M> {
@@ -90,6 +101,15 @@ pub mod height {
         use core::cmp::Ordering;
 
         use super::*;
+
+        impl Data {
+            fn new(revision_number: u64, revision_height: u64) -> Self {
+                Self {
+                    revision_number,
+                    revision_height,
+                }
+            }
+        }
 
         #[test]
         fn partial_ord_test() {
@@ -144,6 +164,8 @@ pub mod upgrade {
 }
 
 pub mod upgrade_fields {
+    use crate::{ConnectionHops, Version};
+
     use super::channel;
 
     multiversx_sc::imports!();
@@ -152,8 +174,8 @@ pub mod upgrade_fields {
     #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
     pub struct Data<M: ManagedTypeApi> {
         pub ordering: channel::Order,
-        pub connection_hops: ManagedVec<M, ManagedBuffer<M>>, // TODO: Maybe custom type
-        pub version: ManagedBuffer<M>,
+        pub connection_hops: ConnectionHops<M>,
+        pub version: Version<M>,
     }
 }
 

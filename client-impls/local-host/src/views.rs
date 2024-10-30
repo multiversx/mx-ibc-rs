@@ -126,7 +126,10 @@ pub trait ViewsModule:
 
         let current_block = self.blockchain().get_block_nonce();
         client_state::Data {
-            latest_height: height::Data::new(0, current_block),
+            latest_height: height::Data {
+                revision_number: 0,
+                revision_height: current_block,
+            },
         }
     }
 
