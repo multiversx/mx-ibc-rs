@@ -1,4 +1,4 @@
-use common_types::{channel_types::height, ChannelId, PortId, Sequence, Timestamp};
+use common_types::{channel_types::height, ChannelId, PortId, Sequence, UnixTimestamp};
 
 use super::packet_types::Packet;
 
@@ -11,7 +11,7 @@ pub struct SendPacketEventData<'a, M: ManagedTypeApi> {
     pub source_port: &'a PortId<M>,
     pub source_channel: &'a ChannelId<M>,
     pub timeout_height: height::Data,
-    pub timeout_timestamp: Timestamp,
+    pub timeout_timestamp: UnixTimestamp,
     pub data: &'a ManagedBuffer<M>,
 }
 

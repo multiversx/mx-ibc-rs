@@ -1,7 +1,7 @@
 use client_common::{
     ClientStatus, GetLatestInfoResultType, VerifyMembershipArgs, VerifyNonMembershipArgs,
 };
-use common_types::{channel_types::height, ClientId, Hash, Timestamp};
+use common_types::{channel_types::height, ClientId, Hash, UnixTimestamp};
 use host::host_views::ProxyTrait as _;
 
 use crate::mock_types::{client_state, consensus_state};
@@ -20,7 +20,7 @@ pub trait ViewsModule:
         &self,
         client_id: &ClientId<Self::Api>,
         height: &height::Data,
-    ) -> Timestamp {
+    ) -> UnixTimestamp {
         let consensus_state = self.get_consensus_state(client_id, height);
 
         consensus_state.timestamp
