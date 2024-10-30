@@ -47,6 +47,33 @@ pub trait StorageModule {
         self.commitments(commitment_hash).get()
     }
 
+    fn get_next_client_seq(&self) -> Sequence {
+        self.host_info().update(|host_info| {
+            let ret_val = host_info.next_client_seq;
+            host_info.next_client_seq += 1;
+
+            ret_val
+        })
+    }
+
+    fn get_next_connection_seq(&self) -> Sequence {
+        self.host_info().update(|host_info| {
+            let ret_val = host_info.next_connection_seq;
+            host_info.next_connection_seq += 1;
+
+            ret_val
+        })
+    }
+
+    fn get_next_channel_seq(&self) -> Sequence {
+        self.host_info().update(|host_info| {
+            let ret_val = host_info.next_channel_seq;
+            host_info.next_channel_seq += 1;
+
+            ret_val
+        })
+    }
+
     #[storage_mapper("commitments")]
     fn commitments(&self, commitment_hash: &Hash<Self::Api>) -> SingleValueMapper<Hash<Self::Api>>;
 

@@ -2,35 +2,35 @@ pub mod merkle_prefix {
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
-    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
+    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Clone)]
     pub struct Data<M: ManagedTypeApi> {
         pub key_prefix: ManagedBuffer<M>,
     }
 }
 
 pub mod connection_end {
-    use crate::ClientId;
+    use crate::{ClientId, Timestamp, VersionVec};
 
-    use super::{counterparty, version};
+    use super::counterparty;
 
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
-    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
+    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Clone, Copy)]
     pub enum State {
-        StateUninitializedUnspecified,
-        StateInit,
-        StateTryOpen,
-        StateOpen,
+        UninitializedUnspecified,
+        Init,
+        TryOpen,
+        Open,
     }
 
-    #[derive(TypeAbi, TopEncode, TopDecode)]
+    #[derive(TypeAbi, TopEncode, TopDecode, Clone)]
     pub struct Data<M: ManagedTypeApi> {
         pub client_id: ClientId<M>,
-        pub versions: ManagedVec<M, version::Data<M>>,
+        pub versions: VersionVec<M>,
         pub state: State,
         pub counterparty: counterparty::Data<M>,
-        pub delay_period: u64, // TODO: Probably a timestamp
+        pub delay_period: Timestamp,
     }
 }
 
@@ -42,7 +42,7 @@ pub mod counterparty {
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
-    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode)]
+    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, Clone)]
     pub struct Data<M: ManagedTypeApi> {
         pub client_id: ClientId<M>,
         pub connection_id: ConnectionId<M>,
@@ -51,12 +51,14 @@ pub mod counterparty {
 }
 
 pub mod version {
+    use crate::{FeatureId, FeatureVec};
+
     multiversx_sc::imports!();
     multiversx_sc::derive_imports!();
 
-    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, ManagedVecItem)]
+    #[derive(TypeAbi, TopEncode, TopDecode, NestedEncode, NestedDecode, ManagedVecItem, Clone)]
     pub struct Data<M: ManagedTypeApi> {
-        pub identifier: ManagedBuffer<M>,
-        pub features: ManagedVec<M, ManagedBuffer<M>>,
+        pub identifier: FeatureId<M>,
+        pub features: FeatureVec<M>,
     }
 }

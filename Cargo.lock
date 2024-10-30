@@ -226,6 +226,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "connection"
+version = "0.0.0"
+dependencies = [
+ "client-common",
+ "common-modules",
+ "common-types",
+ "host",
+ "multiversx-sc",
+ "multiversx-sc-scenario",
+ "num-bigint",
+]
+
+[[package]]
+name = "connection-meta"
+version = "0.0.0"
+dependencies = [
+ "connection",
+ "multiversx-sc-meta-lib",
+]
+
+[[package]]
 name = "const-oid"
 version = "0.9.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
